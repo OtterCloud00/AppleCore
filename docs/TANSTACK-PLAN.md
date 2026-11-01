@@ -1,4 +1,4 @@
-# PIANO TANSTACK — Applecore (25 ott 2026, up. 1 nov 2026)
+# PIANO TANSTACK — Applecore (25 ott 2026, up. 1 nov 2026 ×2)
 
 > Ricerca fatta su tanstack.com (Start **1.0 stabile** dal 13/10/2026).
 > **DECISIONE (25/10 sera): drop di Next** — percorso deploy **documentato
@@ -8,8 +8,8 @@
 > (versioni esistenti di ogni package React/Solid).
 >
 > **Aggiornamento 1 nov 2026**:
-> 1. **Hosting: CLOUDFLARE** (era Vercel) → Workers + R2 binding per i
->    media; dettagli in §Architettura deploy (sostituisce la tabella
+> 1. **Hosting: CLOUDFLARE** (era Vercel) → Workers + route media interna;
+>    dettagli in §Architettura deploy (sostituisce la tabella
 >    pro/contro Vercel)
 > 2. **Regola procedurale**: lo scaffold della CLI va fatto **in una
 >    cartella vuota SEPARATA** (es.
@@ -20,6 +20,26 @@
 >    al legacy) → si genera pulito fuori, poi si copiano i pezzi
 >    dell'app nell'albero nuovo lato per lato.
 >    Applicato ai §Migrazione step 0/2 e §Adozione step 1.
+> 3. **Video >50MB**: nel repo media i video oltre 50MB esistono solo come
+>    parti binarie in `public/media/widgetkit/_split/` (limite GitHub);
+>    logica di ricomposizione on-demand nella route dei media, vedi
+>    §Video >50MB: parti binarie in `_split` (nuovo)
+> 4. **R2 scartata** (stesso giorno, seconda revisione): i media NON vanno
+>    su un bucket R2 — vengono **tutti da `orchard` su GitHub**, unica
+>    sorgente (develop: submodule; prod: fetch autenticato del Worker).
+>    §Architettura deploy riscritta, secrets con in più `GH_TOKEN`
+> 5. **Markdown / Highlight adottate subito** (non più "futuro"): note in
+>    markdown renderizzato e snippet di codice evidenziati SONO dentro lo
+>    step 7 del percorso di adozione — niente seconda fase, le note si
+>    usano dal giorno 1 (il persist `notes` dello Store, step 3, è già
+>    la materia prima)
+> 6. **Fase 2 abolita**: anche Charts (dashboard dei progressi) entra nel
+>    percorso di adozione (step 8) — stessa ragione: niente metà lavori,
+>    la dashboard nasce col resto, non "dopo"
+> 7. **Redact nell'inventario** (nuovo runtime TanStack, nato 26/10 —
+>    un giorno DOPO la verifica npm del 25/10, per questo mancava): si
+>    prova come step 11 a port finito, verde = runtime di default,
+>    rosso = scartato con dati (§Redact: runtime React alternativo)
 
 ## Inventario completo sul sito — disponibilità React / Solid (verificato npm)
 
@@ -32,21 +52,23 @@
 | **DB** (beta) | data/state | 0.5.12 ✓ | 0.3.12 ✓ | ❌ (no server; futuro sync) |
 | **Table** | ui | 9.3.1 ✓ | 9.3.1 ✓ | ❌ (nessuna griglia) |
 | **Form** | ui | 1.33.5 ✓ | 1.33.5 ✓ | ❌ (nessun form) |
-| **Charts** | ui | 1.1.0 ✓ | 1.1.0 ✓ | 🔶 fase 2: dashboard progressi |
+| **Charts** | ui | 1.1.0 ✓ | 1.1.0 ✓ | ✅ dashboard progressi (step 8) |
 | **Virtual** | ux | 3.14.22 ✓ | 3.13.49 ✓ | ✅ moduli >15 lezioni |
 | **Pacer** | ux | 0.24.1 ✓ | 0.24.0 ✓ | ✅ throttle salvataggi |
 | **Hotkeys** | ux | 0.17.0 ✓ | 0.17.0 ✓ | ✅ scorciatoie player |
 | **Devtools** | tooling | 0.10.13 ✓ | 0.8.13 ✓ | ✅ panel in dev |
+| **Redact** | runtime | 0.2.3 ✓ (nato 26/10/2026) | — (runtime solo React) | 🔶 si prova a port finito (step 11) |
 | **AI** | vanilla | — (vanilla 1.0.0, utilizzabile da React) | — | ❌ |
-| **Markdown** | vanilla | — (vanilla 1.0.0 se note md in futuro) | — | 🔶 futuro |
-| **Highlight** | vanilla | — (vanilla 1.1.0) | — | 🔶 futuro |
+| **Markdown** | vanilla | — (vanilla 1.0.0) | — | ✅ note lezione renderizzate |
+| **Highlight** | vanilla | — (vanilla 1.1.0) | — | ✅ snippet di codice nelle note |
 | **CLI** | tooling | 0.72.0 | — | ✅ scaffold migrazione |
 | **Config** | tooling | 0.22.2 | — | ❌ (tooling per publisher) |
 
-**Bilancio**: **12 librerie con adapter React E Solid in parallelo** (esatte le
-versioni rilevate in npm), le altre 3 (AI / Markdown / Highlight) sono Vanilla
-→ usabili da entrambi. La parità React/Solid è completa: un eventuale port
-futuro tocca solo le componenti UI.
+**Bilancio**: **13 librerie con adapter React E Solid in parallelo** (esatte le
+versioni rilevate in npm), 2 vanilla adottate (Markdown / Highlight, step 7),
+1 runtime React-only (Redact, nato DOPO la verifica del 25/10 — si prova a
+port finito), solo AI resta vanilla fuori. La parità React/Solid è
+completa: un eventuale port futuro tocca solo le componenti UI.
 
 ## Percorso di adozione: React su Cloudflare (con l'ordine degli step)
 
@@ -66,12 +88,33 @@ futuro tocca solo le componenti UI.
 5. **Hotkeys** — scorciatoie player: spazio play/pause, frecce ±10s,
    J/K/L stile YouTube, F fullscreen, N/P lezione precedente/successiva
 6. **Virtual** — lista lezioni dei moduli lunghi (Appetizers: 26 lezioni)
-7. **Query + Query Devtools** — lazy-load dell'indice di ricerca
+7. **Markdown + Highlight** — le note per-lezione (chiave `notes`
+   già nello Store/persist dello step 3) si renderizzano in markdown
+   dal giorno 1, NON in una seconda fase ("evitare i lavori a metà"):
+   pannello note nella pagina lezione, markdown renderizzato lato
+   client (le note sono private/locali: niente server) e bundle
+   lazy-loaded SOLO nella pagina lezione; **Highlight** evidenzia gli
+   snippet di codice (lezioni SwiftUI/widgetkit: blocchi swift spesso
+   citati), con highlighter a caricamento asincrono SOLO se la nota
+   contiene un blocco codice
+8. **Charts** — dashboard progressi nella home: la "fase 2" sparisce
+   (stesso principio di Markdown + Highlight, niente fasi attese):
+   stato fatto/rimanenza per corso e per modulo, previsione di
+   completamento a ritmo attuale (lezione al giorno / settimana…),
+   dati tutti dallo Store dello step 3 (`done`/`pos`), zero fetch
+   extra; bundle Charts SOLO nella route dashboard, il resto
+   dell'app non lo tocca
+9. **Query + Query Devtools** — lazy-load dell'indice di ricerca
    (`index.json` via fetch con cache) e prefetch media delle prossime
    lezioni via Router loader (integrazione ufficiale di Query con Start):
    da installare SOLO quando la ricerca non sta più nel bundle
-8. **Devtools panel** — `@tanstack/react-devtools` in dev per ispezionare
+10. **Devtools panel** — `@tanstack/react-devtools` in dev per ispezionare
    store/query; zero bundle in prod
+11. **Redact** — swap di runtime che si fa per ULTIMO, quando tutti gli
+   step prima sono a posto: un plugin nel `vite.config` (`redact()`),
+   zero righe di codice app cambiate, -66% di runtime nel browser.
+   Il dettaglio e il "perché non era nell'inventario" in
+   §Redact: runtime React alternativo
 
 ### Le NON adottate (e perché)
 
@@ -80,8 +123,46 @@ futuro tocca solo le componenti UI.
 - **Table / Form**: nessuna griglia o form nell'app (uso personale)
 - **AI**: vanilla, nessun use-case
 - **Config**: tooling per publisher di pacchetti, non per app
-- **Markdown / Highlight** (vanilla): 🔶 futuro — note in markdown
-  renderizzato e snippet di codice evidenziati, valutazione a tempo
+- ~~**Markdown / Highlight**~~ → **promosse alle adottate** (1 nov, step 7
+  del percorso): restarle "futuro" avrebbe lasciato il lavoro a metà
+  dal primo deploy — note già persistite (chiave `notes` dello Store)
+  ma senza rendering. Entrano con lo stesso taglio della migrazione,
+  niente fasi sparse
+
+## Redact: runtime React alternativo (scoperto 1 nov 2026)
+
+**Perché NON era nell'inventario**: nato il **26 ottobre 2026** (esempio
+primo post "Introducing TanStack Redact", `@tanstack/redact` su npm) —
+la verifica live del registry per la tabella sopra è del **25 ottobre**:
+un giorno prima della nascita, quindi impossibile vederlo. Aggiornato
+adesso (versione live: **0.2.3**).
+
+**Cos'è**: un runtime alternativo di React *solo per il browser* — tiene
+i tuoi componenti, hook e import di `react`/`react-dom` (il Vite plugin
+reindirizza gli entrypoint sotto il cofano), render **sincrono** senza
+scheduler/time-slicing, e un footprint molto più piccolo: **-66.3% di
+runtime di default** rispetto a React 19.3. Integrazione ufficiale per
+TanStack Start, Vite, Vinext, Next.js (sui della build Vite: `redact()`
+dopo `viteReact()`).
+
+| Punto | Per Applecore |
+|---|---|
+| Cambio di codice | ZERO righe app: solo il plugin nel `vite.config` — è il suo punto di forza, non tocca Store/Router/player |
+| Ricavo reale qui | Modesto: l'app è media-heavy (il peso è il video, non il JS); il runtime React è ~decine di KB — il -66% si sente poco sul primo carico di un player video |
+| Rischio | Rendering sincrono: niente pending transitions/actions/optimistic state (qui nessun use-case — OK); le cose da verificare SONO hydration/reference con Start e il player (`preload="metadata"`), Virtual, devtools |
+| Compatibilità deploy | Peer deps: `vite>=5` e plugin `@cloudflare/vite-plugin` opzionale → coerente col deploy Cloudflare già deciso (§Architettura deploy) |
+| Solid parità | ❌ runtime solo React: un futuro port Solid riporta React normale (per Solid non esiste Redact) |
+
+**Come si decide** (invece della vecchia "valutazione a tempo"): si
+prova come **step 11**, a port completo (step 0-9 verdi) per non
+mescolare due variabili durante la migrazione: si aggiunge `redact()`
+e si fa girare la checklist (player + seek range, hotkeys, Virtual,
+Store persist, note markdown, Charts, hydration in Start) e si misura
+il bundle → **verde** = diventa il runtime di default, documentato in
+coda ai §Migrazione; **rosso** = rientro netto in un minuto (si
+toglie il plugin), con la misura lasciata qui nel piano come traccia.
+NIENTE mezzo lavoro neanche qui: o adottato o scartato con dati, non
+"vediamo dopo".
 
 ## Skills di progetto installate (`.agents/skills/`) — quando entrano in gioco
 
@@ -90,7 +171,7 @@ Regola utente (25/10): usarle tutte durante il percorso TanStack.
 | Skill | Quando | Come |
 |---|---|---|
 | **find-skills** | Step 0 migrazione (prima dello scaffold) | cercare nel registry skill utili al port (es. TanStack/Vite/Tailwind); installarle in `.agents/skills/` e aggiornare questa tabella |
-| **frontend-design** | Step 5 componenti (se il port tocca la UI: dashboard/player) | identità visiva durante il porting: tipografia/palette intenzionale, evitare l'aspetto "template default" |
+| **frontend-design** | Step 5 componenti (se il port tocca la UI: dashboard/player/pannello note markdown) | ✅ **INSTALLATA 3 nov** (`anthropics/skills@frontend-design`, 1,1M install) — **USATA** durante il port: identità orchard (verde-nero + rosso buccia `#e2583f` + verde foglia), Fraunces (display serif) + Instrument Sans (UI), marchio mela-core a 5 semi (`CoreMark`), hub come registro a righe (niente card-SaaS), anti-default check incluso |
 | **improve-codebase-architecture** | POST-migrazione (dopo la verifica step 7) | scan deepening-opportunities con report HTML: i seam nuovi resi possibili da Router/Store (adapter localStorage, interfacce catalogo). ⚠️ `disable-model-invocation: true` → invocabile solo dall'utente. ⚠️ richiede la skill "codebase-design" (vocabolario): **✅ INSTALLATA** (`mattpocock/skills@codebase-design`, 855K install — trovata via find-skills) |
 
 Calendario: find-skills PRIMA, frontend-design DURANTE, improve-codebase-architecture DOPO.
@@ -116,6 +197,27 @@ branding. Nel port si sostituisce con tutta materia propria app:
   non c'è (per client tipo download tool), come oggi
 - `SESSION_SECRET` entra nelle secrets del Worker Cloudflare assieme a
   SITE_USER/SITE_PASS (`npx wrangler secret put …`)
+
+> **Deviazione 3 nov 2026 (richiesta esplicita dell'utente, 3 passaggi
+> di messa a punto — schema definitivo)**: la parte pubblica **si ferma
+> alla pagina corso** (`/c/$courseId` — "non più in fondo di così").
+> - `/` per gli ospiti = **la landing disegnata** (schermata editoriale:
+>   CoreMark grande come unica decorazione, titolo Fraunces, banda
+>   d'ingresso con la form; rivelio orchestrato dei 5 semi), NON una
+>   pagina login spoglia: la rotta dedicata
+>   `/login` è stata rimossa come ridondante
+> - hub `/`, pagine corso `/c/$courseId` → **pubbliche**
+> - `/c/$courseId/l/$lessonId` → `beforeLoad` redirect a `/?to=<path>`
+>   (la landing stessa, con ritorno automatico dopo l'accesso; validazione
+>   anti-open-redirect nel `validateSearch` della home)
+> - dopo il login: **ricaricamento pieno** `window.location.assign(returnTo)`
+>   — così l'header `useSession` nasce con lo stato giusto dal SSR
+>   (l'atom Better Auth si aggiorna solo sui percorsi client Better Auth,
+>   non dopo una serverFn custom)
+> - `/media/*` resta protetto (401 / Basic fallback)
+> - Auth = Better Auth (stateless, adapter memory + cookieCache 30d,
+>   `tanstackStartCookies()`). e2e verificato in browser: gate lezione →
+>   landing con `?to` → login → ritorno sulla lezione richiesta.
 
 Buon motivo per attivare **frontend-design** durante step 5: la landing e
 il hub meritano identità visiva propria (palette del sito corsi, tipografia
@@ -144,65 +246,112 @@ uguale con Vite. Ordine previsto:
 4. **Auth, versione moderna**: niente più prompt nativo 401 (quello stile
    "pagina di configurazione router"). Route pubblica `/login` con form →
    server function valida `SITE_USER`/`SITE_PASS` → **session cookie
-   firmato**; il middleware protegge le route dell'app. I media sul
-   Worker via **R2 binding**, route interna protetta dallo stesso cookie
-   (niente secondo progetto niente HMAC, vedi §Login: homescreen
-   pubblica e §Architettura deploy). Vedasi
-   [§ Login: homescreen pubblica]
+   firmato**; il middleware protegge le route dell'app. I media restano
+   su **`orchard` (repo GitHub privato)**: la route interna li streamma
+   con `GH_TOKEN`, protetta dallo stesso cookie (niente secondo progetto
+   niente HMAC, vedi §Login: homescreen pubblica e §Architettura
+   deploy). Vedasi [§ Login: homescreen pubblica].
+   La route media NON serve solo file statici: implementa anche la
+   ricomposizione on-demand delle parti `_split` (§Video >50MB)
 5. **Componenti**: UI passa quasi intatta (client components senza direttive
    "use client"; `next/head` → `<head>` di Start; niente `next/image`)
 6. **Rimozione Next**: disinstallare `next`, cancellare `next.config.ts`,
    `src/app/`, `.next`; reinstall node_modules
 7. **Verifica locale**: `pnpm build` + `vite preview` → player OK, range
-   request su `/media/*.mp4` OK, 401 senza auth, ricerca e resume OK.
+   request su `/media/*.mp4` OK (incluso il seek su una lezione split,
+   §Video >50MB), 401 senza auth, ricerca e resume OK.
    A verifica verde: **frontend-design** SOLO se la UI merita un ritocco
    durante il port; **improve-codebase-architecture** post-migrazione
    (l'utente lo invoca a mano)
 8. **Deploy Cloudflare** (o prima push e poi import): preset Nitro
    `cloudflare` → `wrangler deploy`; secrets `SITE_USER`, `SITE_PASS`,
-   `SESSION_SECRET`; R2 binding `MEDIA` (bucket es. `orchard`) per la
-   route media; test post-deploy come da `STATO-PROGETTO` §Deploy
+   `SESSION_SECRET`, `GH_TOKEN` (PAT read-only sul repo `orchard`, per la
+   route media); test post-deploy come da `STATO-PROGETTO` §Deploy
    (401 → redirect a `/login`)
 
 Stima: mezza giornata. Trade-off accettato: rinuncio a React Compiler
 (legato a Next); il resto (Tailwind, TS, pnpm) sale senza attriti.
 
-## Architettura deploy: Cloudflare Workers + R2 (DECISO 1 nov 2026)
+## Architettura deploy: Cloudflare Workers + media da `orchard` (GitHub) (DECISO 1 nov 2026; R2 scartata in seconda revisione)
 
-L'hosting è Cloudflare (era il piano Vercel: la tabella pro/contro
-"1 app + GH_TOKEN" vs "2 progetti + HMAC" è **abbandonata**). 1 solo Worker:
+L'hosting è Cloudflare (era il piano Vercel: la variante HMAC
+"2 progetti" è **abbandonata**; del vecchio confronto sopravvive invece
+l'idea "1 app + GH_TOKEN", la scelta giusta — vedi tabella sotto). 1 solo Worker.
+I media NON vanno su un bucket: **`orchard` (repo GitHub privato) è l'unica
+sorgente** — in develop via submodule, in produzione il Worker pesca i file
+da GitHub. Un solo posto di verità, niente doppio storage da tenere allineato:
 
 | Pezzo | Decisione |
 |---|---|
 | App | TanStack Start 1.0 React, Nitro preset `cloudflare`, `wrangler deploy` |
-| Media | bucket **R2** (es. `orchard`), binding es. `MEDIA` nel config; route interna che streamma da R2 **solo col cookie di sessione valido** |
+| Media | fetch dal repo `orchard` (`OtterCloud00/orchard`, private): la route interna streamma da `raw.githubusercontent.com` **autenticato** con `GH_TOKEN`, **solo col cookie di sessione valido**; le parti `_split` vengono unite al bisogno (§Video >50MB: parti binarie in `_split` e ricomposizione on-demand) |
 | Login | cookie firmato (`SESSION_SECRET`) = unico controllo, app e media su 1 dominio: niente copia cookie cross-dominio, niente URL firmate HMAC |
-| Repo media | `orchard` (private, `OtterCloud00/orchard`) resta la **sorgente** per lo sviluppo locale (submodule su `public/media`); in produzione la fonte dei media è R2 — nei deploy CF il submodule NON viene montato |
-| Secrets | `SITE_USER`, `SITE_PASS`, `SESSION_SECRET` (wrangler secret put) |
-| Costi | Workers free tier + R2: 10 GB gratis, Class B (read) fisse; egress 0 — larghissimo margine per uso personale |
+| Repo media | `orchard` resta la sorgente **unica** per develop (submodule su `public/media`) e per la produzione (fetch GitHub); nei deploy CF il submodule NON viene montato ma non serve: il Worker va sul repo remoto. Push di un video su `orchard` = aggiornamento in produzione al primo request successivo ("source of truth" immediato) |
+| Secrets | `SITE_USER`, `SITE_PASS`, `SESSION_SECRET`, `GH_TOKEN` (PAT read-only su `orchard` — wrangler secret put). Il token sta SOLO nel Worker: l'app espone i media protetti da cookie, mai il token |
+| Costi | Workers free tier; storage GitHub già pagato dal repo. Raw autenticato = nessuna soglia condivisa con l'API REST; cache sul Worker per non ripetere i fetch |
 
 - **Repo public**: `github.com/OtterCloud00/AppleCore` già pulito di media
   (filter-repo fatto), submodule su `public/media` per lo sviluppo locale
-  (catalogo e dev), R2 per il deploy
-- I media si caricano su R2 in un colpo (`orchard` → bucket), poi update
-  incrementale solo dei corsi nuovi
-- Storia: il repo media non va più spinto a GitHub a ogni video dopo il
-  prossimo aggiornamento module su R2: si decide a quel punto se `orchard`
-  resta backup/git-archive o continua a sincronizzare
+  (catalogo e dev); in produzione la stessa repo è la fonte via fetch
+- Le parti `_split` e i video ≤50MB vivono SOLO sul repo `orchard`: push
+  incrementale dei soli corsi nuovi, il deploy dell'app non tocca i media
+- Cache sul Worker: le parti/asset sono **immutabili** (commit su GitHub =
+  contenuto congelato) → `Cache API` con chiave `path + commit SHA`
+  (o lunga durata + busta sul push), così il fetch a GitHub resta un evento
+  raro e l'ingombro dei rate limit un non-problema
 
 > Come già per Vercel (e per lo stesso motivo): **i deploy cloudflare
 > confezionano solo il repo codice app, i submodule non vengono montati**
-> → i media vivono in **R2** (binding), unico modo per averli protetti da
-> cookie su un solo dominio. L'URL pubblica `pub-XXXX.r2.dev` resta
-> scartata (valutazioni precedenti valide).
+> → la route media va sul repo remoto autenticata (i media restano
+> privati ma senza bucket né URL esterne firmate: l'accesso passa
+> sempre dal Worker, protezione cookie + token server-side).
+
+## Video >50MB: parti binarie in `_split` e ricomposizione on-demand (1 nov 2026)
+
+Situazione nel repo media: i video oltre 50MB **non esistono come `.mp4`** —
+sono divisi in parti binarie da 50MB esatti (52.428.800 byte, l'ultima più
+piccola) sotto `widgetkit/_split/<cartella>/<nome video>_parts/`
+(`<nome>.mp4.part000`, `<nome>.mp4.part001`, …), con `reassemble.cmd`
+incluso, SHA-256 verificato e README esplicativo nel `_split`. ~40 video
+divisi a oggi (elenco nel README). Su GitHub restano **solo le parti**;
+sarà l'app a unirle al bisogno.
+
+**Principio: gli `src` del catalogo restano invariati.** Il player continua
+a puntare al percorso "virtuale" dell'originale
+(`/media/widgetkit/.../<nome>.mp4`); è la **route dei media** a decidere
+cosa servire. Il player (e Store/Hotkeys col player) non sa nulla degli
+split.
+
+| Pezzo | Logica da implementare |
+|---|---|
+| Catalogo | La regola "cartelle `_` escluse" resta: `_split` NON è un modulo né media diretto. `build-catalog.mjs` viene esteso con una **passata su `_split`** che, per ogni `<nome>_parts` corrispondente a una lezione esistente, annota `parts: <n>` (n° di parti) — utile per badge "video in più parti" e per i test; se l'originale manca e non c'è `_split`, la lezione è davvero senza src |
+| Route media | Handler unico (server route / middleware Nitro, dev e prod): riceve `/media/<path>.mp4` → 1) **originale presente** (dev: file su disco nel submodule; prod: fetch autenticato su `orchard` via `GH_TOKEN`) → stream statico come oggi; 2) **originale assente** → cerca `_split/…/<nome>_parts/*.part000`; se c'è, **stream-through**: parti servite in sequenza, `Content-Length` = somma delle parti, byte identici (verifica SHA-256 già fatta allo split) |
+| Range request | Fondamentale per il seek: rispondere `206` mappando l'offset sulla parte giusta (trovo la parte che contiene lo start, stream da lì fino in fondo alla parte, poi le successive). Il check già previsto in §Migrazione step 7 ("range request su `/media/*.mp4` OK") va ripetuto **su una lezione split** |
+| Dev (Node/Nitro) | Parti lette con `fs.createReadStream` concatenate in sequenza — **nessun file temporaneo**. Facoltativo: al primo hit, cache dell'originale unito accanto alle parti (gitignored) per servire poi statico; decide l'uso reale, non il piano |
+| Prod (Workers) | Stream-through con **Range passthrough**: il fetch autenticato a `raw.githubusercontent.com` della singola parte porta lo start-offset giusto (`Range: bytes=<offset interno alla parte>`) — niente buffer interi in memoria: la parte `n` entra nello stream verso il player solo quando la `n-1` è stata consumata. Il fetch delle parti passa dalla **Cache API** (le parti sono immutabili nel commit: la parte 000 si scarica da GitHub UNA volta per commit, poi tutte dalla edge cache) — su GitHub l'originale >50MB non esiste e va bene così: l'unione vive solo nel canale della singola request |
+| URL encoding | Spazi, `#`, caratteri speciali nei nomi (`05 - What's New in Xcode 15.mp4.part001`): unico encoding, già convenzione del catalogo (segmento × `encodeURIComponent`, `/` reali restano separatori); la route media fa il **reverse** prima di toccare il disco/l'URL GitHub |
+
+Costo: la ricomposizione on-demand è I/O banale (concatenazione, nessuna
+ricompressione); la parte 001 entra nello stream appena la 000 è
+consumata → nessuna latenza percepibile per il player. Nessun doppio
+storage su disco a dovere.
+
+Nella migrazione tocca: **step 4** (media da statico a handler, altrimenti
+i ~40 video oltre 50MB non si vedono in dev né in prod) e **step 7**
+(verifica col seek su una lezione split, es. "What's New in Xcode 15",
+55,7 MB in 2 parti).
 
 ## Regole d'oro
 
 1. **Store + Pacer + Virtual + Hotkeys**: adozione subito dopo il port
    (migliorano il player e sopravvivono a qualunque futuro hosting)
-2. **Query**: solo quando serve davvero (ricerca lazy / prefetch), con
+2. **Markdown + Highlight + Charts**: subito, dentro gli step 7-8 del
+   percorso — le note si renderizzano e la dashboard esiste da subito,
+   niente "futuro"/"fase 2" che lascia il lavoro a metà
+3. **Redact**: prova a port finito (step 11), decisione con dati
+   (verde/rosso) — mai "vediamo dopo"
+4. **Query**: solo quando serve davvero (ricerca lazy / prefetch), con
    devtools accese solo in dev
-3. **DB / Table / Form / Config**: fuori — nessun uso reale per l'app
-4. **Router**: sempre TanStack Router, mai App Router (Next esce di scena)
-5. **Solid**: uguale-oppure (12/12 adapter paralleli verificati npm) →
-   l'eventuale port tocca solo le componenti UI
+5. **DB / Table / Form / Config / AI**: fuori — nessun uso reale per l'app
+6. **Router**: sempre TanStack Router, mai App Router (Next esce di scena)
+
