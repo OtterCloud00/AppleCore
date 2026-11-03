@@ -1,17 +1,34 @@
 # PIANO TANSTACK — Applecore (25 ott 2026, up. 1 nov 2026 ×2)
+
+> Ricerca fatta su tanstack.com (Start **1.0 stabile** dal 13/10/2026).
+> **DECISIONE (25/10 sera): drop di Next** — percorso deploy **documentato
+> ufficialmente** nelle guide Start (via Nitro).
+> Migrazione a **TanStack Start in React** PRIMA del primo deploy.
+> Inventario librerie verificato live il 25/10/2026 tramite registry npm
+> (versioni esistenti di ogni package React/Solid).
 >
 > **Aggiornamento 1 nov 2026**:
 > 1. **Hosting: CLOUDFLARE** (era Vercel) → Workers + route media interna;
 >    dettagli in §Architettura deploy (sostituisce la tabella
 >    pro/contro Vercel)
+> 2. **Regola procedurale**: lo scaffold della CLI va fatto **in una
+>    cartella vuota SEPARATA** (es.
+>    `C:\Users\Stefy\Documents\Dev\applecore-start`), mai dentro il repo
+>    dell'app: l'app ha già una struttura piena (src, public/media
+>    submodule, script, config) e far girare la CLI lì dentro produce un
+>    merge messy (duplicati, conflitti di struttura, file scaffold misti
+>    al legacy) → si genera pulito fuori, poi si copiano i pezzi
+>    dell'app nell'albero nuovo lato per lato.
+>    Applicato ai §Migrazione step 0/2 e §Adozione step 1.
 > 3. **Video >50MB**: nel repo media i video oltre 50MB esistono solo come
 >    parti binarie in `public/media/widgetkit/_split/` (limite GitHub);
 >    logica di ricomposizione on-demand nella route dei media, vedi
 >    §Video >50MB: parti binarie in `_split` (nuovo)
-> 4. **R2 scartata**: i media vengono **tutti da `orchard` su GitHub**, unica
+> 4. **R2 scartata** (stesso giorno, seconda revisione): i media NON vanno
+>    su un bucket R2 — vengono **tutti da `orchard` su GitHub**, unica
 >    sorgente (develop: submodule; prod: fetch autenticato del Worker).
 >    §Architettura deploy riscritta, secrets con in più `GH_TOKEN`
-> 5. **Markdown / Highlight adottate subito** (non più "futuro"): note in
+> 5. **Markdown / Highlight adottate subìto** (non più "futuro"): note in
 >    markdown renderizzato e snippet di codice evidenziati SONO dentro lo
 >    step 7 del percorso di adozione — niente seconda fase, le note si
 >    usano dal giorno 1 (il persist `notes` dello Store, step 3, è già
@@ -19,10 +36,6 @@
 > 6. **Fase 2 abolita**: anche Charts (dashboard dei progressi) entra nel
 >    percorso di adozione (step 8) — stessa ragione: niente metà lavori,
 >    la dashboard nasce col resto, non "dopo"
-> 7. **Redact nell'inventario** (nuovo runtime TanStack, nato 26/10 —
->    un giorno DOPO la verifica npm del 25/10, per questo mancava): si
->    prova come step 11 a port finito, verde = runtime di default,
->    rosso = scartato con dati (§Redact: runtime React alternativo)
 
 ## Inventario completo sul sito — disponibilità React / Solid (verificato npm)
 
@@ -48,9 +61,8 @@
 | **Config** | tooling | 0.22.2 | — | ❌ (tooling per publisher) |
 
 **Bilancio**: **13 librerie con adapter React E Solid in parallelo** (esatte le
-versioni rilevate in npm), 2 vanilla adottate (Markdown / Highlight, step 7),
-1 runtime React-only (Redact, nato DOPO la verifica del 25/10 — si prova a
-port finito), solo AI resta vanilla fuori. La parità React/Solid è
+versioni rilevate in npm), le altre 2 (Markdown / Highlight) sono Vanilla e
+ADOOTTATE (step 7), solo AI resta vanilla fuori. La parità React/Solid è
 completa: un eventuale port futuro tocca solo le componenti UI.
 
 ## Percorso di adozione: React su Cloudflare (con l'ordine degli step)
@@ -106,42 +118,11 @@ completa: un eventuale port futuro tocca solo le componenti UI.
 - **Table / Form**: nessuna griglia o form nell'app (uso personale)
 - **AI**: vanilla, nessun use-case
 - **Config**: tooling per publisher di pacchetti, non per app
-
-
-## Redact: runtime React alternativo (scoperto 1 nov 2026)
-
-**Perché NON era nell'inventario**: nato il **26 ottobre 2026** (esempio
-primo post "Introducing TanStack Redact", `@tanstack/redact` su npm) —
-la verifica live del registry per la tabella sopra è del **25 ottobre**:
-un giorno prima della nascita, quindi impossibile vederlo. Aggiornato
-adesso (versione live: **0.2.3**).
-
-**Cos'è**: un runtime alternativo di React *solo per il browser* — tiene
-i tuoi componenti, hook e import di `react`/`react-dom` (il Vite plugin
-reindirizza gli entrypoint sotto il cofano), render **sincrono** senza
-scheduler/time-slicing, e un footprint molto più piccolo: **-66.3% di
-runtime di default** rispetto a React 19.3. Integrazione ufficiale per
-TanStack Start, Vite, Vinext, Next.js (sui della build Vite: `redact()`
-dopo `viteReact()`).
-
-| Punto | Per Applecore |
-|---|---|
-| Cambio di codice | ZERO righe app: solo il plugin nel `vite.config` — è il suo punto di forza, non tocca Store/Router/player |
-| Ricavo reale qui | Modesto: l'app è media-heavy (il peso è il video, non il JS); il runtime React è ~decine di KB — il -66% si sente poco sul primo carico di un player video |
-| Rischio | Rendering sincrono: niente pending transitions/actions/optimistic state (qui nessun use-case — OK); le cose da verificare SONO hydration/reference con Start e il player (`preload="metadata"`), Virtual, devtools |
-| Compatibilità deploy | Peer deps: `vite>=5` e plugin `@cloudflare/vite-plugin` opzionale → coerente col deploy Cloudflare già deciso (§Architettura deploy) |
-| Solid parità | ❌ runtime solo React: un futuro port Solid riporta React normale (per Solid non esiste Redact) |
-
-**Come si decide** (invece della vecchia "valutazione a tempo"): si
-prova come **step 11**, a port completo (step 0-9 verdi) per non
-mescolare due variabili durante la migrazione: si aggiunge `redact()`
-e si fa girare la checklist (player + seek range, hotkeys, Virtual,
-Store persist, note markdown, Charts, hydration in Start) e si misura
-il bundle → **verde** = diventa il runtime di default, documentato in
-coda ai §Migrazione; **rosso** = rientro netto in un minuto (si
-toglie il plugin), con la misura lasciata qui nel piano come traccia.
-NIENTE mezzo lavoro neanche qui: o adottato o scartato con dati, non
-"vediamo dopo".
+- ~~**Markdown / Highlight**~~ → **promosse alle adottate** (1 nov, step 7
+  del percorso): restarle "futuro" avrebbe lasciato il lavoro a metà
+  dal primo deploy — note già persistite (chiave `notes` dello Store)
+  ma senza rendering. Entrano con lo stesso taglio della migrazione,
+  niente fasi sparse
 
 ## Skills di progetto installate (`.agents/skills/`) — quando entrano in gioco
 
@@ -150,7 +131,7 @@ Regola utente (25/10): usarle tutte durante il percorso TanStack.
 | Skill | Quando | Come |
 |---|---|---|
 | **find-skills** | Step 0 migrazione (prima dello scaffold) | cercare nel registry skill utili al port (es. TanStack/Vite/Tailwind); installarle in `.agents/skills/` e aggiornare questa tabella |
-| **frontend-design** | Step 5 componenti (se il port tocca la UI: dashboard/player/pannello note markdown) | ✅ **INSTALLATA 3 nov** (`anthropics/skills@frontend-design`, 1,1M install) — **USATA** durante il port: identità orchard (verde-nero + rosso buccia `#e2583f` + verde foglia), Fraunces (display serif) + Instrument Sans (UI), marchio mela-core a 5 semi (`CoreMark`), hub come registro a righe (niente card-SaaS), anti-default check incluso |
+| **frontend-design** | Step 5 componenti (se il port tocca la UI: dashboard/player/pannello note markdown) | identità visiva durante il porting: tipografia/palette intenzionale, evitare l'aspetto "template default" |
 | **improve-codebase-architecture** | POST-migrazione (dopo la verifica step 7) | scan deepening-opportunities con report HTML: i seam nuovi resi possibili da Router/Store (adapter localStorage, interfacce catalogo). ⚠️ `disable-model-invocation: true` → invocabile solo dall'utente. ⚠️ richiede la skill "codebase-design" (vocabolario): **✅ INSTALLATA** (`mattpocock/skills@codebase-design`, 855K install — trovata via find-skills) |
 
 Calendario: find-skills PRIMA, frontend-design DURANTE, improve-codebase-architecture DOPO.
@@ -312,13 +293,12 @@ i ~40 video oltre 50MB non si vedono in dev né in prod) e **step 7**
 
 1. **Store + Pacer + Virtual + Hotkeys**: adozione subito dopo il port
    (migliorano il player e sopravvivono a qualunque futuro hosting)
-2. **Markdown + Highlight + Charts**: subito, dentro gli step 7-8 del
+2. **Markdown + Highlight + Charts**: subìto, dentro gli step 7-8 del
    percorso — le note si renderizzano e la dashboard esiste da subito,
    niente "futuro"/"fase 2" che lascia il lavoro a metà
-3. **Redact**: prova a port finito (step 11), decisione con dati
-   (verde/rosso) — mai "vediamo dopo"
-4. **Query**: solo quando serve davvero (ricerca lazy / prefetch), con
+3. **Query**: solo quando serve davvero (ricerca lazy / prefetch), con
    devtools accese solo in dev
-5. **DB / Table / Form / Config / AI**: fuori — nessun uso reale per l'app
-6. **Router**: sempre TanStack Router, mai App Router (Next esce di scena)
-
+4. **DB / Table / Form / Config / AI**: fuori — nessun uso reale per l'app
+5. **Router**: sempre TanStack Router, mai App Router (Next esce di scena)
+6. **Solid**: uguale-oppure (13/13 adapter paralleli verificati npm) →
+   l'eventuale port tocca solo le componenti UI
