@@ -1,31 +1,14 @@
 # PIANO TANSTACK — Applecore (25 ott 2026, up. 1 nov 2026 ×2)
-
-> Ricerca fatta su tanstack.com (Start **1.0 stabile** dal 13/10/2026).
-> **DECISIONE (25/10 sera): drop di Next** — percorso deploy **documentato
-> ufficialmente** nelle guide Start (via Nitro).
-> Migrazione a **TanStack Start in React** PRIMA del primo deploy.
-> Inventario librerie verificato live il 25/10/2026 tramite registry npm
-> (versioni esistenti di ogni package React/Solid).
 >
 > **Aggiornamento 1 nov 2026**:
 > 1. **Hosting: CLOUDFLARE** (era Vercel) → Workers + route media interna;
 >    dettagli in §Architettura deploy (sostituisce la tabella
 >    pro/contro Vercel)
-> 2. **Regola procedurale**: lo scaffold della CLI va fatto **in una
->    cartella vuota SEPARATA** (es.
->    `C:\Users\Stefy\Documents\Dev\applecore-start`), mai dentro il repo
->    dell'app: l'app ha già una struttura piena (src, public/media
->    submodule, script, config) e far girare la CLI lì dentro produce un
->    merge messy (duplicati, conflitti di struttura, file scaffold misti
->    al legacy) → si genera pulito fuori, poi si copiano i pezzi
->    dell'app nell'albero nuovo lato per lato.
->    Applicato ai §Migrazione step 0/2 e §Adozione step 1.
 > 3. **Video >50MB**: nel repo media i video oltre 50MB esistono solo come
 >    parti binarie in `public/media/widgetkit/_split/` (limite GitHub);
 >    logica di ricomposizione on-demand nella route dei media, vedi
 >    §Video >50MB: parti binarie in `_split` (nuovo)
-> 4. **R2 scartata** (stesso giorno, seconda revisione): i media NON vanno
->    su un bucket R2 — vengono **tutti da `orchard` su GitHub**, unica
+> 4. **R2 scartata**: i media vengono **tutti da `orchard` su GitHub**, unica
 >    sorgente (develop: submodule; prod: fetch autenticato del Worker).
 >    §Architettura deploy riscritta, secrets con in più `GH_TOKEN`
 > 5. **Markdown / Highlight adottate subito** (non più "futuro"): note in
@@ -123,11 +106,7 @@ completa: un eventuale port futuro tocca solo le componenti UI.
 - **Table / Form**: nessuna griglia o form nell'app (uso personale)
 - **AI**: vanilla, nessun use-case
 - **Config**: tooling per publisher di pacchetti, non per app
-- ~~**Markdown / Highlight**~~ → **promosse alle adottate** (1 nov, step 7
-  del percorso): restarle "futuro" avrebbe lasciato il lavoro a metà
-  dal primo deploy — note già persistite (chiave `notes` dello Store)
-  ma senza rendering. Entrano con lo stesso taglio della migrazione,
-  niente fasi sparse
+
 
 ## Redact: runtime React alternativo (scoperto 1 nov 2026)
 
@@ -228,17 +207,7 @@ equa, non-tavola genitoriale di default).
 Media in volo non bloccano: `public/media` è **untracked** e `public/` funziona
 uguale con Vite. Ordine previsto:
 
-1. **Media finiti e committati** (swap AV1 → commit launchpad/swiftui →
-   catalogo): così la migrazione parte da un albero pulito e tematico.
-   Subito dopo: **find-skills** a caccia di skill utili (step 0)
-2. **Scaffold**: inizializzato con la CLI **in cartella vuota separata**
-   (es. `C:\Users\Stefy\Documents\Dev\applecore-start`), poi si copiano i
-   pezzi nel nuovo albero man a mano. Dipendenze:
-   `pnpm add @tanstack/react-start @tanstack/react-router
-   nitro @vitejs/plugin-react`; `vite.config.ts`:
-   `plugins: [tanstackStart(), nitro(), viteReact()]` +
-   `@tailwindcss/vite` (Tailwind 4 resta; il PostCSS lascia il posto
-   al Vite plugin). Preset deploy: `cloudflare` (Nitro) per il Workers.
+1. **find-skills** a caccia di skill utili 
 3. **Routes**: `src/routes/` file-based (App Router → Router):
    `/` (dashboard) · `/c/$course` (corso) · `/c/$course/$module/$lesson`
    (lezione + player). `next/link` → `Link`, `useParams`/`useSearchParams` →
@@ -255,8 +224,6 @@ uguale con Vite. Ordine previsto:
    ricomposizione on-demand delle parti `_split` (§Video >50MB)
 5. **Componenti**: UI passa quasi intatta (client components senza direttive
    "use client"; `next/head` → `<head>` di Start; niente `next/image`)
-6. **Rimozione Next**: disinstallare `next`, cancellare `next.config.ts`,
-   `src/app/`, `.next`; reinstall node_modules
 7. **Verifica locale**: `pnpm build` + `vite preview` → player OK, range
    request su `/media/*.mp4` OK (incluso il seek su una lezione split,
    §Video >50MB), 401 senza auth, ricerca e resume OK.
