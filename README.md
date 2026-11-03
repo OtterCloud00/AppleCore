@@ -1,128 +1,245 @@
-# Applecore — archivio personale dei corsi di Sean Allen
+Welcome to your new TanStack Start app!
 
-Un'app web **privata e gratuita** che sostituisce la scuola Teachable di Sean Allen
-(il sito chiuderà il **24 novembre 2026**), usando i video che scarichi prima di quella data.
+# Getting Started
 
-Scaffold di partenza: `create-next-app` (Next.js 16, Tailwind CSS 4, TypeScript, pnpm).
-
-📚 **Documentazione operativa** in [`docs/`](./docs):
-- [`docs/STATO-PROGETTO.md`](./docs/STATO-PROGETTO.md) — stato, media, deploy, migrazione R2
-- [`docs/GUIDA-OPERATIVA.md`](./docs/GUIDA-OPERATIVA.md) — come aggiungere un modulo, passo-passo
-
-## Cosa sa fare
-
-- 📚 Corsi come su Teachable: moduli → lezioni
-- ▶️ Player video che **riprende da dove eri** rimasto
-- ✅ Spunta di **completamento** per lezione e barra di avanzamento per corso
-- 🔎 **Ricerca** istantanea di lezioni e corsi
-- 📝 **Note personali** per lezione (salvate nel browser)
-- 📑 Vista **PDF** integrata
-- 🔒 Accesso **privato con Basic Auth** via `src/proxy.ts` (in Next.js 16 il vecchio `middleware.ts` si chiama `proxy.ts`; GitHub Pages nel piano gratuito non offre autenticazione)
-
-> ⚠️ **Nota di licenza.** I materiali di Sean Allen sono per *uso personale*
-> e i termini vietano di ripubblicarli su server pubblici. Tieni l'hub con
-> credenziali attive e non condividere l'URL: il materiale resta il tuo, in privato.
-
----
-
-## 1. Setup locale
+To run this application:
 
 ```bash
-pnpm install     # solo la prima volta
-pnpm dev         # → http://localhost:3000
+pnpm install
+pnpm dev
 ```
 
-In sviluppo il sito resta aperto senza login (vedi `src/proxy.ts`).
+# Building For Production
 
-## 2. Scaricare i corsi (fai prima del 24 novembre!)
+To build this application for production:
 
-Vai su https://seanallen.teachable.com, entra in ogni corso e scarica
-tutti i video e i PDF che ti interessano. Mantieni la struttura tipica di Teachable:
-
-```
-widgetkit\
-  Getting Started\
-    01 Welcome.mp4
-    02 Create A Widget Layout.mp4
-  Widget Basics\
-    01 .........mp4
-    cheatsheet.pdf
+```bash
+pnpm build
 ```
 
-## 3. Generare il catalogo da un download
+## Styling
 
-Lo script crea moduli dalle sub-cartelle, lezioni dai file, titoli puliti
-(senza prefissi `01 -`), ordine naturale e URL `src`:
+This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-```powershell
-pnpm catalog -- --course widgetkit --folder C:\Downloads\WidgetKit --base /media/widgetkit
+### Removing Tailwind CSS
+
+If you prefer not to use Tailwind CSS:
+
+1. Remove the demo pages in `src/routes/demo/`
+2. Replace the Tailwind import in `src/styles.css` with your own styles
+3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
+4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
+
+## Linting & Formatting
+
+
+This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+
+```bash
+pnpm lint
+pnpm format
+pnpm check
 ```
 
-- `--course` … id del corso in `src/data/catalog.json` (precompilato con
-  WidgetKit, iOS Dev Launchpad e SwiftUI Fundamentals)
-- `--folder` … cartella locale dove hai scaricato il corso (quella che contiene
-  le sub-cartelle dei moduli, es. `Getting Started`)
-- `--base` … base degli URL dei media; senza questo gli URL restano vuoti
-  e li riempi a mano in `src/data/catalog.json`
 
-Il comando è **incrementale**: sovrascrive solo il corso indicato, tutti gli
-altri restano come sono.
+## Deploy to Cloudflare Workers
 
-Tipi di lezione riconosciuti: `video` (.mp4/.mov/.m4v/.webm), `pdf` (.pdf),
-`file` (altro, scaricabile). Puoi aggiungere anche `link` (es. URL YouTube) a mano.
+This project uses the Cloudflare Vite plugin (configured in `vite.config.ts`) and `wrangler.jsonc`:
 
-## 4. Dove mettere i media (gratuito)
+1. Install Wrangler: `npm install -g wrangler`
+2. Authenticate: `wrangler login`
+3. Deploy: `npx wrangler deploy`
 
-### Per ora: dentro il repo Git (nuovo piano!)
+For production env vars, run `wrangler secret put MY_VAR` for each secret listed in `.env.example`. Public (non-secret) vars go in `wrangler.jsonc` under `vars`.
 
-1. Scarica il corso da Teachable **entro il 24 novembre**
-2. Copia la cartella del corso (quella con i moduli) in:
-   `public/media/<id-corso>/` — es. `public/media/widgetkit/Getting Started/01 ....mp4`
-3. Genera il catalogo con `--base /media/widgetkit` → gli `src` puntano lì
-4. I file in `public/media` sono **protetti dal Basic Auth** del proxy:
-   senza login, `/media/...` risponde 401 come le pagine
+KV, D1, R2, and Durable Object bindings are configured in `wrangler.jsonc` — see https://developers.cloudflare.com/workers/wrangler/configuration/.
 
-Limiti da conoscere (Windows/GitHub):
-- GitHub rifiuta **file singoli > 100 MB** (i video di Sean quasi sempre stanno sotto)
-- Repo privato: limiti software di ~5 GB; per il piano di Studio completa ci sta
-- I media di produzione non vengono dal repo: in deploy il submodule non
-  viene montato → vedi §5 (R2 su Cloudflare)
 
-### Se un giorno servisse più spazio: Cloudflare R2 (10 GB gratis)
+## Setting up Better Auth
 
-1. Account gratuito su [cloudflare.com](https://cloudflare.com) → **R2** → Create bucket
-2. Attiva il **Public Development URL** (ottieni `https://pub-xxxxxxxx.r2.dev`)
-3. Carica la cartella del corso nel bucket
-4. Basta rieseguire lo script con
-   `--base https://pub-xxxxxxxx.r2.dev/widgetkit`: **zero modifiche al codice**
+1. Generate and set the `BETTER_AUTH_SECRET` environment variable in your `.env.local`:
 
-## 5. Deploy su Cloudflare (gratis)
-
-1. Pusha il repo su GitHub: **github.com/OtterCloud00/AppleCore**
-   (i media stanno su `OtterCloud00/orchard`, repo private, submodule di
-   `public/media` per lo sviluppo locale)
-2. Su Cloudflare → **Workers**: build col **preset `cloudflare` di Nitro**
-   e `wrangler deploy` (L'app e le API/serverless in un solo Worker)
-3. **Secrets** sul Worker (OBBLIGATORIE in produzione):
-   ```powershell
-   npx wrangler secret put SITE_USER
-   npx wrangler secret put SITE_PASS
-   npx wrangler secret put SESSION_SECRET
+   ```bash
+   pnpm dlx @better-auth/cli secret
    ```
-4. **Bucket R2** con i media (es. bucket `orchard`, binding `MEDIA`):
-   la route media del Worker streamma da R2 **solo a sessione valida** —
-   1 dominio, cookie unico, niente URL pubbliche
-5. Deploy. Il sito chiede le credenziali al primo accesso, poi le ricorda
-   col cookie di sessione. **Se non imposti i secrets il contenuto non
-   viene mai esposto.**
 
-## 6. Manutenzione
+2. Visit the [Better Auth documentation](https://www.better-auth.com) to unlock the full potential of authentication in your app.
 
-- Aggiungere/modificare lezioni → `src/data/catalog.json` o script del punto 3
-- Un nuovo corso? Ri-esegui lo script con `--course <nuovo-id>` e una cartella nuova
+### Adding a Database (Optional)
 
-### Idee per il futuro (dimmi quali vuoi)
+Better Auth can work in stateless mode, but to persist user data, add a database:
 
-- PWA installabile sul desktop/telefono
-- Export/import di progressi e note (per non perderli cambiando PC)
-- Contatore "ore di video" per piano di studio
+```typescript
+// src/lib/auth.ts
+import { betterAuth } from "better-auth";
+import { Pool } from "pg";
+
+export const auth = betterAuth({
+  database: new Pool({
+    connectionString: process.env.DATABASE_URL,
+  }),
+  // ... rest of config
+});
+```
+
+Then run migrations:
+
+```bash
+pnpm dlx @better-auth/cli migrate
+```
+
+
+
+## Routing
+
+This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+
+### Adding A Route
+
+To add a new route to your application just add a new file in the `./src/routes` directory.
+
+TanStack will automatically generate the content of the route file for you.
+
+Now that you have two routes you can use a `Link` component to navigate between them.
+
+### Adding Links
+
+To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+
+```tsx
+import { Link } from "@tanstack/react-router";
+```
+
+Then anywhere in your JSX you can use it like so:
+
+```tsx
+<Link to="/about">About</Link>
+```
+
+This will create a link that will navigate to the `/about` route.
+
+More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+
+### Using A Layout
+
+In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
+
+Here is an example layout that includes a header:
+
+```tsx
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'My App' },
+    ],
+  }),
+  shellComponent: ({ children }) => (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <header>
+          <nav>
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+          </nav>
+        </header>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  ),
+})
+```
+
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+
+## Server Functions
+
+TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
+
+```tsx
+import { createServerFn } from '@tanstack/react-start'
+
+const getServerTime = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  return new Date().toISOString()
+})
+
+// Use in a component
+function MyComponent() {
+  const [time, setTime] = useState('')
+  
+  useEffect(() => {
+    getServerTime().then(setTime)
+  }, [])
+  
+  return <div>Server time: {time}</div>
+}
+```
+
+## API Routes
+
+You can create API routes by using the `server` property in your route definitions:
+
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { json } from '@tanstack/react-start'
+
+export const Route = createFileRoute('/api/hello')({
+  server: {
+    handlers: {
+      GET: () => json({ message: 'Hello, World!' }),
+    },
+  },
+})
+```
+
+## Data Fetching
+
+There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+
+For example:
+
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/people')({
+  loader: async () => {
+    const response = await fetch('https://swapi.dev/api/people')
+    return response.json()
+  },
+  component: PeopleComponent,
+})
+
+function PeopleComponent() {
+  const data = Route.useLoaderData()
+  return (
+    <ul>
+      {data.results.map((person) => (
+        <li key={person.name}>{person.name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+
+
+# Demo files
+
+Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+
+
+# Learn More
+
+You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+
+For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
