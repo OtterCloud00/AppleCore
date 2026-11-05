@@ -11,15 +11,6 @@
 > 1. **Hosting: CLOUDFLARE** (era Vercel) → Workers + route media interna;
 >    dettagli in §Architettura deploy (sostituisce la tabella
 >    pro/contro Vercel)
-> 2. **Regola procedurale**: lo scaffold della CLI va fatto **in una
->    cartella vuota SEPARATA** (es.
->    `C:\Users\Stefy\Documents\Dev\applecore-start`), mai dentro il repo
->    dell'app: l'app ha già una struttura piena (src, public/media
->    submodule, script, config) e far girare la CLI lì dentro produce un
->    merge messy (duplicati, conflitti di struttura, file scaffold misti
->    al legacy) → si genera pulito fuori, poi si copiano i pezzi
->    dell'app nell'albero nuovo lato per lato.
->    Applicato ai §Migrazione step 0/2 e §Adozione step 1.
 > 3. **Video >50MB**: nel repo media i video oltre 50MB esistono solo come
 >    parti binarie in `public/media/widgetkit/_split/` (limite GitHub);
 >    logica di ricomposizione on-demand nella route dei media, vedi
@@ -188,12 +179,12 @@ equa, non-tavola genitoriale di default).
 Media in volo non bloccano: `public/media` è **untracked** e `public/` funziona
 uguale con Vite. Ordine previsto:
 
-1. **find-skills** a caccia di skill utili 
-3. **Routes**: `src/routes/` file-based (App Router → Router):
+1. **find-skills** a caccia di skill utili
+2. **Routes**: `src/routes/` file-based (App Router → Router):
    `/` (dashboard) · `/c/$course` (corso) · `/c/$course/$module/$lesson`
    (lezione + player). `next/link` → `Link`, `useParams`/`useSearchParams` →
    hooks del Router (search-params type-safe = bonus resume deep-link)
-4. **Auth, versione moderna**: niente più prompt nativo 401 (quello stile
+3. **Auth, versione moderna**: niente più prompt nativo 401 (quello stile
    "pagina di configurazione router"). Route pubblica `/login` con form →
    server function valida `SITE_USER`/`SITE_PASS` → **session cookie
    firmato**; il middleware protegge le route dell'app. I media restano
@@ -203,15 +194,15 @@ uguale con Vite. Ordine previsto:
    deploy). Vedasi [§ Login: homescreen pubblica].
    La route media NON serve solo file statici: implementa anche la
    ricomposizione on-demand delle parti `_split` (§Video >50MB)
-5. **Componenti**: UI passa quasi intatta (client components senza direttive
+4. **Componenti**: UI passa quasi intatta (client components senza direttive
    "use client"; `next/head` → `<head>` di Start; niente `next/image`)
-7. **Verifica locale**: `pnpm build` + `vite preview` → player OK, range
+5. **Verifica locale**: `pnpm build` + `vite preview` → player OK, range
    request su `/media/*.mp4` OK (incluso il seek su una lezione split,
    §Video >50MB), 401 senza auth, ricerca e resume OK.
    A verifica verde: **frontend-design** SOLO se la UI merita un ritocco
    durante il port; **improve-codebase-architecture** post-migrazione
    (l'utente lo invoca a mano)
-8. **Deploy Cloudflare** (o prima push e poi import): preset Nitro
+6. **Deploy Cloudflare** (o prima push e poi import): preset Nitro
    `cloudflare` → `wrangler deploy`; secrets `SITE_USER`, `SITE_PASS`,
    `SESSION_SECRET`, `GH_TOKEN` (PAT read-only sul repo `orchard`, per la
    route media); test post-deploy come da `STATO-PROGETTO` §Deploy
