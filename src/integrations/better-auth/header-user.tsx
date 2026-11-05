@@ -6,7 +6,7 @@ export default function BetterAuthHeader() {
 
   if (isPending) {
     return (
-      <div className="h-8 w-8 bg-neutral-100 dark:bg-neutral-800 animate-pulse" />
+      <div className="h-8 w-8 animate-pulse rounded-full bg-[var(--chip-bg)]" />
     )
   }
 
@@ -14,10 +14,10 @@ export default function BetterAuthHeader() {
     return (
       <div className="flex items-center gap-2">
         {session.user.image ? (
-          <img src={session.user.image} alt="" className="h-8 w-8" />
+          <img src={session.user.image} alt="" className="h-8 w-8 rounded-full" />
         ) : (
-          <div className="h-8 w-8 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-            <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--panel2)]">
+            <span className="text-xs font-medium text-[var(--sea-ink-soft)]">
               {session.user.name?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
@@ -26,7 +26,7 @@ export default function BetterAuthHeader() {
           onClick={() => {
             void authClient.signOut()
           }}
-          className="flex-1 h-9 px-4 text-sm font-medium bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+          className="inline-flex h-9 items-center rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] transition hover:-translate-y-0.5"
         >
           Sign out
         </button>
@@ -37,7 +37,7 @@ export default function BetterAuthHeader() {
   return (
     <Link
       to="/better-auth"
-      className="h-9 px-4 text-sm font-medium bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors inline-flex items-center"
+      className="inline-flex h-9 items-center rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] no-underline transition hover:-translate-y-0.5"
     >
       Sign in
     </Link>
