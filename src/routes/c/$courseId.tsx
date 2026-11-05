@@ -5,7 +5,6 @@ import { courses, flattenLessons } from '@/lib/catalog'
 import { loadAllDone, lsRemove, lsSet } from '@/lib/storage'
 
 
-
 export const Route = createFileRoute('/c/$courseId')({
   component: CoursePage,
 })
