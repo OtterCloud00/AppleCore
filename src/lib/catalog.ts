@@ -6,9 +6,7 @@ export interface Lesson {
   id: string;
   title: string;
   type: LessonType;
-  /** URL del media (video/PDF). Vuoto = non ancora impostato. */
   src?: string;
-  /** Risorse extra della lezione (es. documentazione Apple, link esterni). */
   links?: Array<{ title: string; url: string }>;
 }
 
@@ -35,12 +33,12 @@ export interface LessonEntry {
   lesson: Lesson;
 }
 
-/** Tutte le lezioni di un corso, in ordine (per prev/next e per i progressi). */
+
 export function flattenLessons(course: Course): LessonEntry[] {
   return course.modules.flatMap((m) => m.lessons.map((lesson) => ({ course, module: m, lesson })));
 }
 
-/** Tutte le lezioni di tutti i corsi (per la ricerca). */
+
 export function flattenAll(): LessonEntry[] {
   return courses.flatMap(flattenLessons);
 }

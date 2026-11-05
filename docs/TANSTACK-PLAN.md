@@ -53,6 +53,7 @@
 | **Pacer** | ux | 0.24.1 ✓ | 0.24.0 ✓ | ✅ throttle salvataggi |
 | **Hotkeys** | ux | 0.17.0 ✓ | 0.17.0 ✓ | ✅ scorciatoie player |
 | **Devtools** | tooling | 0.10.13 ✓ | 0.8.13 ✓ | ✅ panel in dev |
+| **Redact** | runtime | 0.2.3 ✓ (nato 26/10/2026) | — (runtime solo React) | 🔶 si prova a port finito (step 11) |
 | **AI** | vanilla | — (vanilla 1.0.0, utilizzabile da React) | — | ❌ |
 | **Markdown** | vanilla | — (vanilla 1.0.0) | — | ✅ note lezione renderizzate |
 | **Highlight** | vanilla | — (vanilla 1.1.0) | — | ✅ snippet di codice nelle note |
@@ -104,6 +105,11 @@ completa: un eventuale port futuro tocca solo le componenti UI.
    da installare SOLO quando la ricerca non sta più nel bundle
 10. **Devtools panel** — `@tanstack/react-devtools` in dev per ispezionare
    store/query; zero bundle in prod
+11. **Redact** — swap di runtime che si fa per ULTIMO, quando tutti gli
+   step prima sono a posto: un plugin nel `vite.config` (`redact()`),
+   zero righe di codice app cambiate, -66% di runtime nel browser.
+   Il dettaglio e il "perché non era nell'inventario" in
+   §Redact: runtime React alternativo
 
 ### Le NON adottate (e perché)
 
@@ -152,6 +158,27 @@ branding. Nel port si sostituisce con tutta materia propria app:
 - `SESSION_SECRET` entra nelle secrets del Worker Cloudflare assieme a
   SITE_USER/SITE_PASS (`npx wrangler secret put …`)
 
+> **Deviazione 3 nov 2026 (richiesta esplicita dell'utente, 3 passaggi
+> di messa a punto — schema definitivo)**: la parte pubblica **si ferma
+> alla pagina corso** (`/c/$courseId` — "non più in fondo di così").
+> - `/` per gli ospiti = **la landing disegnata** (schermata editoriale:
+>   CoreMark grande come unica decorazione, titolo Fraunces, banda
+>   d'ingresso con la form; rivelio orchestrato dei 5 semi), NON una
+>   pagina login spoglia: la rotta dedicata
+>   `/login` è stata rimossa come ridondante
+> - hub `/`, pagine corso `/c/$courseId` → **pubbliche**
+> - `/c/$courseId/l/$lessonId` → `beforeLoad` redirect a `/?to=<path>`
+>   (la landing stessa, con ritorno automatico dopo l'accesso; validazione
+>   anti-open-redirect nel `validateSearch` della home)
+> - dopo il login: **ricaricamento pieno** `window.location.assign(returnTo)`
+>   — così l'header `useSession` nasce con lo stato giusto dal SSR
+>   (l'atom Better Auth si aggiorna solo sui percorsi client Better Auth,
+>   non dopo una serverFn custom)
+> - `/media/*` resta protetto (401 / Basic fallback)
+> - Auth = Better Auth (stateless, adapter memory + cookieCache 30d,
+>   `tanstackStartCookies()`). e2e verificato in browser: gate lezione →
+>   landing con `?to` → login → ritorno sulla lezione richiesta.
+
 Buon motivo per attivare **frontend-design** durante step 5: la landing e
 il hub meritano identità visiva propria (palette del sito corsi, tipografia
 equa, non-tavola genitoriale di default).
@@ -161,17 +188,7 @@ equa, non-tavola genitoriale di default).
 Media in volo non bloccano: `public/media` è **untracked** e `public/` funziona
 uguale con Vite. Ordine previsto:
 
-1. **Media finiti e committati** (swap AV1 → commit launchpad/swiftui →
-   catalogo): così la migrazione parte da un albero pulito e tematico.
-   Subito dopo: **find-skills** a caccia di skill utili (step 0)
-2. **Scaffold**: inizializzato con la CLI **in cartella vuota separata**
-   (es. `C:\Users\Stefy\Documents\Dev\applecore-start`), poi si copiano i
-   pezzi nel nuovo albero man a mano. Dipendenze:
-   `pnpm add @tanstack/react-start @tanstack/react-router
-   nitro @vitejs/plugin-react`; `vite.config.ts`:
-   `plugins: [tanstackStart(), nitro(), viteReact()]` +
-   `@tailwindcss/vite` (Tailwind 4 resta; il PostCSS lascia il posto
-   al Vite plugin). Preset deploy: `cloudflare` (Nitro) per il Workers.
+1. **find-skills** a caccia di skill utili 
 3. **Routes**: `src/routes/` file-based (App Router → Router):
    `/` (dashboard) · `/c/$course` (corso) · `/c/$course/$module/$lesson`
    (lezione + player). `next/link` → `Link`, `useParams`/`useSearchParams` →
@@ -188,8 +205,6 @@ uguale con Vite. Ordine previsto:
    ricomposizione on-demand delle parti `_split` (§Video >50MB)
 5. **Componenti**: UI passa quasi intatta (client components senza direttive
    "use client"; `next/head` → `<head>` di Start; niente `next/image`)
-6. **Rimozione Next**: disinstallare `next`, cancellare `next.config.ts`,
-   `src/app/`, `.next`; reinstall node_modules
 7. **Verifica locale**: `pnpm build` + `vite preview` → player OK, range
    request su `/media/*.mp4` OK (incluso il seek su una lezione split,
    §Video >50MB), 401 senza auth, ricerca e resume OK.

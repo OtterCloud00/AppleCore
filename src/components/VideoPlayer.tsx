@@ -1,39 +1,43 @@
-"use client";
+import { useEffect, useRef, useState } from 'react'
+import { lsGet, lsSet } from '@/lib/storage'
 
-import { useEffect, useRef, useState } from "react";
-import { lsGet, lsSet } from "@/lib/storage";
-
-/**
- * Player HTML5 con "riprendi da dove eri": la posizione è salvata
- * in localStorage ogni 5 secondi e ripristinata a loadedmetadata.
- */
-export default function VideoPlayer({ lessonId, src }: { lessonId: string; src: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const lastSaved = useRef(0);
-  const [resumeAt, setResumeAt] = useState<number | null>(null);
+export default function VideoPlayer({
+  lessonId,
+  src,
+}: {
+  lessonId: string
+  src: string
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const lastSaved = useRef(0)
+  const [resumeAt, setResumeAt] = useState<number | null>(null)
 
   useEffect(() => {
-    const saved = lsGet<number>(`pos:${lessonId}`, 0);
-    if (saved > 5) setResumeAt(saved);
-  }, [lessonId]);
+    const saved = lsGet<number>(`pos:${lessonId}`, 0)
+    if (saved > 5) setResumeAt(saved)
+  }, [lessonId])
 
   const save = (t: number) => {
-    lsSet(`pos:${lessonId}`, t);
-    lastSaved.current = t;
-  };
+    lsSet(`pos:${lessonId}`, t)
+    lastSaved.current = t
+  }
 
   function onLoadedMetadata() {
-    const v = videoRef.current;
-    if (!v) return;
-    if (resumeAt !== null && Number.isFinite(v.duration) && resumeAt < v.duration - 15) {
-      v.currentTime = Math.max(0, resumeAt - 3);
+    const v = videoRef.current
+    if (!v) return
+    if (
+      resumeAt !== null &&
+      Number.isFinite(v.duration) &&
+      resumeAt < v.duration - 15
+    ) {
+      v.currentTime = Math.max(0, resumeAt - 3)
     }
   }
 
   function onTimeUpdate() {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.currentTime - lastSaved.current >= 5) save(v.currentTime);
+    const v = videoRef.current
+    if (!v) return
+    if (v.currentTime - lastSaved.current >= 5) save(v.currentTime)
   }
 
   return (
@@ -52,13 +56,18 @@ export default function VideoPlayer({ lessonId, src }: { lessonId: string; src: 
         />
       ) : (
         <p className="bg-panel border border-dashed border-hairline rounded-xl p-6 text-muted">
-          URL del video non impostato in{" "}
+          URL del video non impostato in{' '}
           <code className="rounded bg-panel2 px-1 py-0.5 text-[0.9em] font-mono">
             src/data/catalog.json
           </code>
-          . Imposta{" "}
-          <code className="rounded bg-panel2 px-1 py-0.5 text-[0.9em] font-mono">src</code> a mano
-          o con <code className="rounded bg-panel2 px-1 py-0.5 text-[0.9em] font-mono">pnpm catalog</code>{" "}
+          . Imposta{' '}
+          <code className="rounded bg-panel2 px-1 py-0.5 text-[0.9em] font-mono">
+            src
+          </code>{' '}
+          a mano o con{' '}
+          <code className="rounded bg-panel2 px-1 py-0.5 text-[0.9em] font-mono">
+            pnpm catalog
+          </code>{' '}
           (vedi README).
         </p>
       )}
@@ -71,21 +80,21 @@ export default function VideoPlayer({ lessonId, src }: { lessonId: string; src: 
         <button
           className="inline-block px-3.5 py-2 rounded-[10px] border border-accent bg-transparent text-accent font-semibold text-sm cursor-pointer hover:brightness-110"
           onClick={() => {
-            const v = videoRef.current;
-            if (v) v.currentTime = 0;
-            save(0);
-            setResumeAt(null);
+            const v = videoRef.current
+            if (v) v.currentTime = 0
+            save(0)
+            setResumeAt(null)
           }}
         >
           Ricomincia da capo
         </button>
       </div>
     </div>
-  );
+  )
 }
 
 function fmt(sec: number) {
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${m}:${String(s).padStart(2, "0")}`;
+  const m = Math.floor(sec / 60)
+  const s = Math.floor(sec % 60)
+  return `${m}:${String(s).padStart(2, '0')}`
 }

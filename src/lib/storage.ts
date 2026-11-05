@@ -1,7 +1,4 @@
-/**
- * Persistenza lato browser (localStorage) con prefisso "hub:".
- * Salvataggi: lezioni completate (done:), posizione video (pos:), note (note:).
- */
+
 
 const PREFIX = "hub:";
 
@@ -20,7 +17,7 @@ export function lsSet(key: string, value: unknown): void {
   try {
     window.localStorage.setItem(PREFIX + key, JSON.stringify(value));
   } catch {
-    // quota piena o storage disabilitato: ignora in silenzio
+  
   }
 }
 
@@ -29,13 +26,13 @@ export function lsRemove(key: string): void {
   try {
     window.localStorage.removeItem(PREFIX + key);
   } catch {
-    // ignora
+   
   }
 }
 
 export type DoneMap = Record<string, boolean>;
 
-/** Mappa { lezioneId: true } di tutte le lezioni segnate complete. */
+
 export function loadAllDone(): DoneMap {
   const out: DoneMap = {};
   if (typeof window === "undefined") return out;
@@ -47,7 +44,7 @@ export function loadAllDone(): DoneMap {
       }
     }
   } catch {
-    // ignora
+    
   }
   return out;
 }
