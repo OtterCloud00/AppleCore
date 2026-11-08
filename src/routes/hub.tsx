@@ -1,9 +1,19 @@
-import { Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
+import { getSessionFn } from '@/server/auth'
 import Progress from '@/components/Progress'
 import { courses, flattenAll, flattenLessons } from '@/lib/catalog'
 import { loadAllDone } from '@/lib/storage'
 
+
+export const Route = createFileRoute('/hub')({
+  beforeLoad: async ({ location }) => {
+    const session = await getSessionFn()
+    if (!session.authed)
+      throw redirect({ to: '/', search: { to: location.pathname } })
+  },
+  component: Hub,
+})
 
 function Hub() {
   const [done, setDone] = useState<Record<string, boolean>>({})
@@ -11,6 +21,10 @@ function Hub() {
 
   useEffect(() => {
     setDone(loadAllDone())
+
+    const handleStorage = () => setDone(loadAllDone())
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
   }, [])
 
   const query = q.trim().toLowerCase()
@@ -45,6 +59,8 @@ function Hub() {
           placeholder="Cerca una lezione o un corso…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
+          role="search"
+          autoComplete="off"
         />
       </section>
 
@@ -90,7 +106,7 @@ function Hub() {
             return (
               <Link
                 key={c.id}
-                to="/c/$courseId"
+                to="/hub/$courseId"
                 params={{ courseId: c.id }}
                 className="island-shell rise-in group mb-4 block rounded-2xl p-5 text-[var(--sea-ink)] no-underline transition-colors hover:bg-panel2"
                 style={{ animationDelay: `${index * 70 + 80}ms` }}
