@@ -1,11 +1,17 @@
-import { createFileRoute, Link, notFound, Outlet, useRouterState } from '@tanstack/react-router'
+import { createFileRoute, Link, notFound, Outlet, redirect, useRouterState } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { getSessionFn } from '@/server/auth'
 import Progress from '@/components/Progress'
 import { courses, flattenLessons } from '@/lib/catalog'
-import { loadAllDone, lsRemove, lsSet } from '@/lib/storage'
+import { loadAllDone, removeDone, setDone as setStorageDone } from '@/lib/storage'
 
 
 export const Route = createFileRoute('/c/$courseId')({
+  beforeLoad: async ({ location }) => {
+    const session = await getSessionFn()
+    if (!session.authed)
+      throw redirect({ to: '/', search: { to: location.pathname } })
+  },
   component: CoursePage,
 })
 
@@ -27,6 +33,10 @@ function CourseBody({ courseId }: { courseId: string }) {
 
   useEffect(() => {
     setDone(loadAllDone())
+
+    const handleStorage = () => setDone(loadAllDone())
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
   }, [courseId])
 
   const flat = flattenLessons(course)
@@ -35,8 +45,8 @@ function CourseBody({ courseId }: { courseId: string }) {
   const toggleLesson = (id: string) => {
     const isDone = !done[id]
     setDone((prev) => ({ ...prev, [id]: isDone }))
-    if (isDone) lsSet(`done:${id}`, true)
-    else lsRemove(`done:${id}`)
+    if (isDone) setStorageDone(id, true)
+    else removeDone(id)
   }
 
   return (
@@ -46,9 +56,12 @@ function CourseBody({ courseId }: { courseId: string }) {
           ← Course Catalog
         </Link>
       </p>
-      <h1 className="font-display text-[1.9rem] leading-none mb-2">{course.title}</h1>
-      {course.subtitle && <p className="text-muted">{course.subtitle}</p>}
-      {course.description && <p className="text-sm text-muted">{course.description}</p>}
+      <h1 className="font-display text-[1.9rem] leading-none mb-2 max-w-[65ch]">{course.title}</h1>
+      {course.description && (
+        <p className="mt-1 text-sm text-[var(--sea-ink-soft)] max-w-[65ch] leading-relaxed">
+          {course.description}
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2.5 my-5">
         <Progress value={dn} total={flat.length} />
       </div>
@@ -68,7 +81,7 @@ function CourseBody({ courseId }: { courseId: string }) {
                       ? 'w-[22px] h-[22px] rounded-md text-xs leading-none border border-success bg-success text-[#06281c] cursor-pointer flex-none'
                       : 'w-[22px] h-[22px] rounded-md text-xs leading-none border border-hairline bg-transparent text-muted cursor-pointer flex-none'
                   }
-                  aria-label={done[lesson.id] ? 'Lezione completata' : 'Segna lezione completata'}
+                  aria-label={done[lesson.id] ? 'Lesson completed' : 'Mark lesson as completed'}
                   onClick={() => toggleLesson(lesson.id)}
                 >
                   ✓
@@ -88,12 +101,12 @@ function CourseBody({ courseId }: { courseId: string }) {
           <button
             className="inline-block px-3.5 py-2 rounded-[10px] border border-accent bg-transparent text-accent font-semibold text-sm cursor-pointer hover:brightness-110"
             onClick={() => {
-              if (!window.confirm('Azzerare i progressi di questo corso?')) return
-              flat.forEach((x) => lsRemove(`done:${x.lesson.id}`))
+              if (!window.confirm('Reset course progress?')) return
+              flat.forEach((x) => removeDone(x.lesson.id))
               setDone({})
             }}
           >
-            Azzera progressi del corso
+            Reset course progress
           </button>
         </div>
       )}

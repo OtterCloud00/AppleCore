@@ -4,10 +4,10 @@ import {
   notFound,
   redirect,
 } from '@tanstack/react-router'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
 import VideoPlayer from '@/components/VideoPlayer'
 import { courses, flattenLessons, type LessonEntry } from '@/lib/catalog'
-import { lsGet, lsRemove, lsSet } from '@/lib/storage'
+import { getDone, setDone, removeDone, getNote, setNote as setStorageNote } from '@/lib/storage'
 import { getSessionFn } from '@/server/auth'
 
 const badge =
@@ -60,19 +60,14 @@ function LessonBody({
   next: LessonEntry | null
 }) {
   const { course, module: mod, lesson } = entry
-  const [isDone, setIsDone] = useState<boolean>(false)
-  const [note, setNote] = useState<string>('')
-
-  useEffect(() => {
-    setIsDone(lsGet<boolean>(`done:${lesson.id}`, false))
-    setNote(lsGet<string>(`note:${lesson.id}`, ''))
-  }, [lesson.id])
+  const [isDone, setIsDone] = useState<boolean>(getDone(lesson.id))
+  const [note, setNote] = useState<string>(getNote(lesson.id))
 
   const toggleDone = () => {
     const now = !isDone
     setIsDone(now)
-    if (now) lsSet(`done:${lesson.id}`, true)
-    else lsRemove(`done:${lesson.id}`)
+    if (now) setDone(lesson.id, true)
+    else removeDone(lesson.id)
   }
 
   const missingSrc: Record<string, string> = {
@@ -243,7 +238,7 @@ function LessonBody({
         value={note}
         onChange={(e) => {
           setNote(e.target.value)
-          lsSet(`note:${lesson.id}`, e.target.value)
+          setStorageNote(lesson.id, e.target.value)
         }}
       />
     </main>
