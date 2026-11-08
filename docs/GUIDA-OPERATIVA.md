@@ -43,10 +43,12 @@ Convenzioni solidale (non reinventare):
   roba spuria → `New-Item -ItemType Directory` per la destinazione prima.
 - **Messaggi git**: le virgolette/parole nel `-m '...'` a PowerShell rompono
   l'argomento → usare solo `'...'` semplice; amend possibile solo pre-push.
-- **Next 16**: `middleware.ts` ora si chiama `src/proxy.ts` (funzione `proxy`);
-  pagine client con `useParams` vanno avvolte in `<Suspense>` (cacheComponents).
-- **Dev server .next**: i test di produzione falliscono se `next dev` ha
-  sovrascritto `.next` → rigenerare la build prima di `next start`.
+- **TanStack Start**: le route sono file-based in `src/routes/` con `createFileRoute`;
+  `src/routes/index.tsx` è la landing pubblica, `src/routes/hub.tsx` espone `Hub`,
+  `src/routes/auth.tsx` espone `BetterAuth` + `LoginForm`. Il vecchio `index copy.tsx`
+  è stato splittato ed eliminato (8 nov 2026).
+- **Dev server Vite**: `pnpm dev` su porta 3000; rigenerare la build con
+  `pnpm build` prima di testare in preview. Non usare comandi `next dev`/`next start`.
 - **Screenshot con login**: il proxy chiede auth se `.env.local` ha credenziali;
   per gli screenshot spostare temporaneamente `.env.local` → `.env.local.bak`,
   poi RIpristinare.

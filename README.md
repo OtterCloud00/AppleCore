@@ -1,9 +1,3 @@
-TO DO :
-  1. Finish Spilliting the code that are in src/routes/index copy.tsx in the split files of hub.tsx and auth.tsx
-  2. do a first run of improve-codebase-architecture
-  3. after the report update the GUIDA-OPERATIVA.md and STATO-PROGETTO.md 
-  4. do a run of checks with Impeccable
-  5. after the report update the GUIDA-OPERATIVA.md and STATO-PROGETTO.md
-  6. do a report of the status of completion of tanstack-plan 
-  7. after the report rename TANSTACK-PLAN.md to TANSTACK-PLAN-1.md 
-  8. also after the report create an up to date TANSTACK-PLAN.md file 
+# Applecore
+
+App web personale per corsi iOS e SwiftUI, costruita con **TanStack Start 1.0 React**, Vite 8, Tailwind 4, TypeScript e pnpm. Deploy su Cloudflare Workers. Zero costi, uso personale, media in repo privato (`orchard`).

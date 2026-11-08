@@ -1,7 +1,7 @@
 # STATO PROGETTO — Applecore
 
 > Documento di handoff: da leggere a inizio sessione (umano o agente).
-> Ultimo aggiornamento: 5 novembre 2026.
+> Ultimo aggiornamento: 8 novembre 2026.
 
 > **Aggiornamento 5 nov 2026 — migrazione eseguita.**
 > L'app gira su **TanStack Start 1.0 React** (Vite 8) con route file-based in
@@ -11,6 +11,14 @@
 > `APPLECORE_MEDIA_DIR` (default `media`). Le sezioni sotto che citano
 > Next.js/`proxy.ts`/submodule sono storiche, salvo i punti su catalogo e
 > media; vedi anche `TANSTACK-PLAN.md`.
+
+> **Aggiornamento 8 nov 2026 — to-do README eseguiti.**
+> - `src/routes/index copy.tsx` splittato in `hub.tsx` (Hub) e `auth.tsx` (LoginForm + BetterAuth); `index copy.tsx` eliminato.
+> - `TANSTACK-PLAN.md` archiviato come `TANSTACK-PLAN-1.md`; nuovo `TANSTACK-PLAN.md` scritto con percorsi di adozione rimanenti (Store, Pacer, Hotkeys, Virtual, Markdown+Highlight, Charts, Query, Devtools, Redact).
+> - `TANSTACK-PLAN-REPORT.md` creato con stato di completamento del piano TanStack (2/16 librerie adottate).
+> - Report architettura (`improve-codebase-architecture`) scritto in temp: 4 candidati di deepening, top recommendation = spostare LoginForm da auth.tsx nel modulo /.
+> - `impeccable` hook attivato per questo progetto (`.impeccable/config.json` + `config.local.json`).
+> - `src/routes/index.tsx`: testo placeholder sostituito con copy inglese ("Applecore" / "Your iOS & SwiftUI Courses" / "Watch lessons, track progress, and take notes straight from the browser."); lista corsi hard-coded sostituita con rendering dinamico da `src/lib/catalog` (Candidato 3 del report architettura — landing pubblica ora mostra i corsi reali dal catalogo).
 
 > ⚠️ Cambio nome (1 nov 2026): l'app si chiama **Applecore** (ex SwiftVault).
 > Repo aggiornati: codice → `github.com/OtterCloud00/AppleCore` (public),
@@ -153,12 +161,13 @@ mai Next+OpenNext"). **Ora è incondizionale**: si droppa Next e si migra a
   = spostamento mezza giornata)
 - Da 1.0 STABILE (13/10/2026) con docs anche per **Solid** (eventuale port
   futuro UI-only, non richiesto ora)
-- **Piano di migrazione in 8 step: `TANSTACK-PLAN.md`** (mezza giornata)
+- **Piano di migrazione in 8 step: `TANSTACK-PLAN.md`** (mezza giornata); versione storica archiviata come `TANSTACK-PLAN-1.md`. Stato completamento: vedi `TANSTACK-PLAN-REPORT.md`.
 - ⚠️ **Regola procedurale (1 nov 2026)**: lo scaffold venga generato con la
   CLI TanStack **in una cartella vuota separata** (es.
   `C:\Users\Stefy\Documents\Dev\applecore-start`), MAI dentro il repo
   dell'app: copiare/spostare codice in un albero pulito dall'esterno
   (→ istruzioni in `TANSTACK-PLAN.md` §Migrazione step 0/2)
+- **Rotte file-based attive**: `/` (landing pubblica), `/better-auth` (auth pubblica), `/courses` (catalogo pubblico); `/c/$courseId`, `/hub`, `/c/$courseId/l/$lessonId` e `/media/**` richiedono login (redirect a `/?to=` se non autenticato).
 
 - Cosa si ricicla: `catalog.json` e tutti gli script, player/resume/progressi
   (localStorage = client-side, identico), Tailwind 4, componenti UI
@@ -217,6 +226,24 @@ CPU i3-2100: ~75 fps (2,5x realtime) → un file grande ~7-8 min.
       (⚠️ cambiare password demo `stefy/test` PRIMA del deploy)
 - [ ] Test post-deploy: `/` → login moderno; route → 200 col cookie;
       media solo dopo autenticazione
+- [ ] TanStack Start: completare percorsi di adozione rimanenti
+      (Store, Pacer, Hotkeys, Virtual, Markdown+Highlight, Charts, Query,
+      Devtools panel, Redact) — vedi `TANSTACK-PLAN.md` §Percorso di adozione
+- [ ] Candidati architettura (report in temp: `architecture-review-*.html` e `-v2.html`):
+      - #1 spostare LoginForm da auth.tsx in / — NON applicato (scelta utente: index = solo vetrina)
+      - #2 deep-wrap localStorage in storage module — ✅ applicato (storage.ts espone interfaccia di dominio getDone/setDone/getNote/setNote/getPos/setPos/loadAllDone; chiavi hub:* nascoste; aggiornati c/$courseId.tsx, c/$courseId/l/$lessonId.tsx, VideoPlayer.tsx)
+      - #3 catalogo dinamico in landing — ✅ applicato (index.tsx renderizza courses da @/lib/catalog)
+      - #4 hub.tsx come rotta /hub con auth guard — ✅ applicato (createFileRoute('/hub') con beforeLoad redirect a / se non autenticato)
+- Comandi Impeccable eseguiti:
+      - init — ✅ PRODUCT.md creato
+      - document — ✅ DESIGN.md + .impeccable/design.json creati
+      - extract — ✅ IslandShell.tsx + Button.tsx creati
+      - adapt — ✅ viewport-fit=cover, safe area footer, touch target 44px
+      - clarify — ✅ messaggi vuoti, stati di errore/successo, etichette
+      - distill — ✅ nessun elemento ridondante
+      - animate — ✅ feedback caricamento corso più evidente
+      - bolder — ✅ titolo hero text-5xl, CoreMark size 260
+      - polish — ✅ 0 anti-patterns su tutti i file pubblici
 
 ## Roadmap facoltativa
 
