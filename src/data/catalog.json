@@ -699,7 +699,7 @@
         }
       ],
       "description": "Learn how to create a wide variety of widgets, including interactive, lock screen, controls, and more.",
-      "subtitle": "Widget, lock screen, controlli interattivi e altro",
+      "subtitle": "Impara a creare widget per iOS 18 con WidgetKit e SwiftUI",
       "url": "https://seanallen.teachable.com/p/widgets"
     },
     {
@@ -1571,7 +1571,7 @@
         }
       ],
       "description": "60+ videos to introduce you to Swift, Xcode and the world of iOS development.",
-      "subtitle": "Per principianti assoluti — aggiornato a iOS 15",
+      "subtitle": "Un corso di sviluppo iOS per principianti, che copre Swift, SwiftUI e Xcode",
       "url": "https://seanallen.teachable.com/p/ios-dev-launchpad"
     },
     {
@@ -2294,7 +2294,7 @@
         }
       ],
       "description": "Build a strong foundation in SwiftUI with a focus on data flow.",
-      "subtitle": "Aggiornato a iOS 16",
+      "subtitle": "Costruisci solide basi in SwiftUI con focus sul data flow. - Aggiornato per iOS 16",
       "url": "https://seanallen.teachable.com/p/swiftui-fundamentals"
     },
     {
@@ -2314,7 +2314,7 @@
           ]
         }
       ],
-      "subtitle": "L'ebook di Sean Allen (PDF)",
+      "subtitle": "Storie del percorso di uno sviluppatore iOS",
       "description": "Il libro in cui Sean Allen racconta come è diventato sviluppatore iOS a Apple partendo dal niente. Lettura del PDF integrata nell'app (o download)."
     }
   ]
