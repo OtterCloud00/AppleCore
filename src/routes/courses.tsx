@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { authClient } from '#/lib/auth-client'
 import { courses, flattenAll, flattenLessons } from '@/lib/catalog'
-import { loadAllDone } from '@/lib/storage'
+import { hydrateProgress, useProgress } from '@/lib/progress'
 import Progress from '@/components/Progress'
 
 const EN_SUBTITLES: Record<string, string> = {
@@ -19,7 +19,7 @@ export const Route = createFileRoute('/courses')({
 function Courses() {
   const { data: session } = authClient.useSession()
   const isAuthed = !!session?.user
-  const [done, setDone] = useState<Record<string, boolean>>({})
+  const done = useProgress((s) => s.done)
   const total = useMemo(() => flattenAll().length, [])
   const doneCount = useMemo(
     () => flattenAll().filter((e) => done[e.lesson.id]).length,
@@ -27,11 +27,7 @@ function Courses() {
   )
 
   useEffect(() => {
-    setDone(loadAllDone())
-
-    const handleStorage = () => setDone(loadAllDone())
-    window.addEventListener('storage', handleStorage)
-    return () => window.removeEventListener('storage', handleStorage)
+    hydrateProgress()
   }, [])
 
   const content =

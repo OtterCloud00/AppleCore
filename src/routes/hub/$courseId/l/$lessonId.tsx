@@ -4,10 +4,10 @@ import {
   notFound,
   redirect,
 } from '@tanstack/react-router'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect } from 'react'
 import VideoPlayer from '@/components/VideoPlayer'
 import { courses, flattenLessons, type LessonEntry } from '@/lib/catalog'
-import { getDone, setDone, removeDone, getNote, setNote as setStorageNote } from '@/lib/storage'
+import { hydrateProgress, useProgress, markDone, unmarkDone, setNote } from '@/lib/progress'
 import { getSessionFn } from '@/server/auth'
 
 const badge =
@@ -60,14 +60,16 @@ function LessonBody({
   next: LessonEntry | null
 }) {
   const { course, module: mod, lesson } = entry
-  const [isDone, setIsDone] = useState<boolean>(getDone(lesson.id))
-  const [note, setNote] = useState<string>(getNote(lesson.id))
+  const isDone = useProgress((s) => !!s.done[lesson.id])
+  const note = useProgress((s) => s.notes[lesson.id] ?? '')
+
+  useEffect(() => {
+    hydrateProgress()
+  }, [lesson.id])
 
   const toggleDone = () => {
-    const now = !isDone
-    setIsDone(now)
-    if (now) setDone(lesson.id, true)
-    else removeDone(lesson.id)
+    if (!isDone) markDone(lesson.id)
+    else unmarkDone(lesson.id)
   }
 
   const missingSrc: Record<string, string> = {
@@ -240,10 +242,7 @@ function LessonBody({
         className="w-full min-h-[140px] bg-panel border border-hairline rounded-[10px] text-ink p-3 text-[0.95rem] resize-y placeholder:text-muted focus:outline-none focus:border-accent"
         placeholder="Appunti su questa lezione (salvati nel browser)…"
         value={note}
-        onChange={(e) => {
-          setNote(e.target.value)
-          setStorageNote(lesson.id, e.target.value)
-        }}
+        onChange={(e) => setNote(lesson.id, e.target.value)}
       />
     </main>
   )

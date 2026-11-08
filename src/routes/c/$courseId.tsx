@@ -1,9 +1,9 @@
 import { createFileRoute, Link, notFound, Outlet, redirect, useRouterState } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { getSessionFn } from '@/server/auth'
 import Progress from '@/components/Progress'
 import { courses, flattenLessons } from '@/lib/catalog'
-import { loadAllDone, removeDone, setDone as setStorageDone } from '@/lib/storage'
+import { hydrateProgress, useProgress, markDone, unmarkDone } from '@/lib/progress'
 
 
 export const Route = createFileRoute('/c/$courseId')({
@@ -29,24 +29,18 @@ function CoursePage() {
 
 function CourseBody({ courseId }: { courseId: string }) {
   const course = courses.find((c) => c.id === courseId)!
-  const [done, setDone] = useState<Record<string, boolean>>({});
+  const done = useProgress((s) => s.done)
 
   useEffect(() => {
-    setDone(loadAllDone())
-
-    const handleStorage = () => setDone(loadAllDone())
-    window.addEventListener('storage', handleStorage)
-    return () => window.removeEventListener('storage', handleStorage)
+    hydrateProgress()
   }, [courseId])
 
   const flat = flattenLessons(course)
   const dn = flat.filter((x) => done[x.lesson.id]).length
 
   const toggleLesson = (id: string) => {
-    const isDone = !done[id]
-    setDone((prev) => ({ ...prev, [id]: isDone }))
-    if (isDone) setStorageDone(id, true)
-    else removeDone(id)
+    if (done[id]) unmarkDone(id)
+    else markDone(id)
   }
 
   return (
@@ -102,8 +96,7 @@ function CourseBody({ courseId }: { courseId: string }) {
             className="inline-block px-3.5 py-2 rounded-[10px] border border-accent bg-transparent text-accent font-semibold text-sm cursor-pointer hover:brightness-110"
             onClick={() => {
               if (!window.confirm('Reset course progress?')) return
-              flat.forEach((x) => removeDone(x.lesson.id))
-              setDone({})
+              flat.forEach((x) => unmarkDone(x.lesson.id))
             }}
           >
             Reset course progress

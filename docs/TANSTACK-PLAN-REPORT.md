@@ -17,8 +17,8 @@ La migrazione a TanStack Start (React) è **iniziata ma non completata**. Il fra
 |---|------|----------|-------|------|
 | 0 | Scaffold CLI | `@tanstack/cli` | ❌ Non fatto | Lo scaffold avrebbe dovuto avvenire in una cartella separata (`applecore-start`); non risulta eseguito in questo repo |
 | 1 | Start + Router | `@tanstack/react-start`, `@tanstack/react-router` | ✅ Fatto | `vite.config.ts` usa `tanstackStart()`; `src/routes/` è file-based con `createFileRoute`; rotte `/`, `/better-auth`, `/courses`, `/c/$courseId`, `/c/$courseId/l/$lessonId`, `/media/$`, `/api/auth/$` |
-| 2 | Store | `@tanpack/store` | ❌ Non installato | Non in `package.json`; i progressi usano ancora `localStorage` diretto (`hub:pos:*`, `hub:done:*`, `hub:note:*`) |
-| 3 | Pacer + Store | `@tanstack/pacer` | ❌ Non installato | Il timer di salvataggio del `currentTime` è ancora fatto a mano (ogni 5s) |
+| 2 | Store | `@tanstack/store` | ✅ Fatto 8 nov 2026 | `src/lib/progress.ts` con store reattivo + persist su chiave versionata `hub:progress`; legacy `hub:pos|done|note:*` letti a hydration per compat; `localStorage` diretto eliminato da tutte le route |
+| 3 | Pacer + Store | `@tanstack/pacer` | ✅ Fatto 8 nov 2026 | `Throttler` (wait 5000ms) in `VideoPlayer` sostituisce il timer a mano; `throttle` anche per la scrittura persist (300ms trailing) |
 | 4 | Hotkeys | `@tanstack/hotkeys` | ❌ Non installato | |
 | 5 | Virtual | `@tanstack/react-virtual` | ❌ Non installato | |
 | 6 | Markdown + Highlight | `@tanstack/markdown`, `@tanstack/highlight` | ❌ Non installati | Non in `package.json`; le note non sono renderizzate in markdown |
@@ -36,13 +36,14 @@ La migrazione a TanStack Start (React) è **iniziata ma non completata**. Il fra
 | Start | 1.169.4 | ✅ 1.169.4 | ✅ vite.config | Adottato |
 | Router | 1.170.46 | ✅ 1.170.46 | ✅ src/routes/ | Adottato |
 | Query | 5.104.5 | ❌ | ❌ | Non adottato |
-| Store | 0.11.2 | ❌ | ❌ | Non adottato (localStorage diretto) |
+| Store | 0.11.2 | ✅ 0.11.2 | ✅ src/lib/progress.ts | Adottato |
+| Pacer | 0.24.1 | ✅ 0.23.1 | ✅ VideoPlayer + persist | Adottato |
 | DB | 0.5.12 | ❌ | ❌ | Non adottato (nessun server) |
 | Table | 9.3.1 | ❌ | ❌ | Non adottato |
 | Form | 1.33.5 | ❌ | ❌ | Non adottato |
 | Charts | 1.1.0 | ❌ | ❌ | Non adottato |
 | Virtual | 3.14.22 | ❌ | ❌ | Non adottato |
-| Pacer | 0.24.1 | ❌ | ❌ | Non adottato |
+| Pacer | 0.24.1 | ✅ 0.23.1 | ✅ VideoPlayer + persist | Adottato |
 | Hotkeys | 0.17.0 | ❌ | ❌ | Non adottato |
 | Devtools | 0.10.13 | ✅ 0.10.14 | ⚠️ solo vite.config | Parziale |
 | Redact | 0.2.3 | ❌ | ❌ | Non adottato |
@@ -52,7 +53,7 @@ La migrazione a TanStack Start (React) è **iniziata ma non completata**. Il fra
 | CLI | 0.72.0 | ❌ | ❌ | Non adottato |
 | Config | 0.22.2 | ❌ | ❌ | Non adottato |
 
-**Bilancio**: 2 librerie adottate (Start, Router), 1 parziale (Devtools), 14 non adottate.
+**Bilancio** (8 nov 2026): 4 librerie adottate (Start, Router, Store, Pacer), 1 parziale (Devtools), 12 non adottate.
 
 ---
 

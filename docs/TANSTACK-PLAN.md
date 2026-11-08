@@ -1,9 +1,9 @@
 # PIANO TANSTACK — Applecore (aggiornato 8 nov 2026)
 
-> Stato attuale: la migrazione a TanStack Start 1.0 React è **iniziata ma non completata**.
-> Framework (Start) e Router sono integrati; le restanti librerie del piano (Store, Pacer,
-> Hotkeys, Virtual, Markdown, Highlight, Charts, Query, Devtools panel, Redact) non sono
-> ancora installate né usate. Vedi `TANSTACK-PLAN-REPORT.md` per il dettaglio.
+> Stato attuale: migrazione a TanStack Start 1.0 React **in corso** (aggiornato 8 nov 2026).
+> Fatti: Framework (Start), Router, route tree generato, home rifinita, **Store + Pacer** (step 2-3)
+> con build e preview verificate. Restanti: Hotkeys, Virtual, Markdown, Highlight, Charts, Query,
+> Devtools panel, Redact. Vedi `TANSTACK-PLAN-REPORT.md` per il dettaglio.
 
 ## Decisioni già prese (confermate)
 
@@ -59,11 +59,11 @@ parzialmente fatti (Router e Start presenti); dal 2 in poi tutto da fare.
 
 ## Lavoro immediato (next actions)
 
-1. Generare il route tree di TanStack Router (`routeTree.gen.ts`) per risolvere gli errori TS sulle rotte dinamiche
-2. Rifinire `src/routes/index.tsx` (contiene testo placeholder)
-3. Installare `@tanpack/store` e integrare lo store al posto degli accessi diretti a `localStorage`
-4. Installare `@tanstack/pacer` e sostituire il timer di salvataggio `currentTime`
-5. Eseguire `pnpm build` + `vite preview` per verificare build e player
+1. ~~Generare il route tree di TanStack Router (`routeTree.gen.ts`)~~ ✅ fatto (generato dal plugin, typecheck pulito)
+2. ~~Rifinire `src/routes/index.tsx`~~ ✅ fatto (home rifinita, nessun placeholder)
+3. ~~Installare `@tanstack/store` e integrare lo store~~ ✅ fatto 8 nov 2026 (`src/lib/progress.ts`, chiave versionata `hub:progress`, legacy `hub:*` letti per compat)
+4. ~~Installare `@tanstack/pacer` e sostituire il timer `currentTime`~~ ✅ fatto 8 nov 2026 (`Throttler` con `wait: 5000` in `VideoPlayer`)
+5. ~~Eseguire `pnpm build` + `vite preview`~~ ✅ fatto 8 nov 2026 (build OK, route verificate con 200/307)
 6. Deploy su Cloudflare Workers con `wrangler deploy` (secrets: `SITE_USER`, `SITE_PASS`, `SESSION_SECRET`, `GH_TOKEN`)
 
 ---

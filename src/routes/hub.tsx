@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { getSessionFn } from '@/server/auth'
 import Progress from '@/components/Progress'
 import { courses, flattenAll, flattenLessons } from '@/lib/catalog'
-import { loadAllDone } from '@/lib/storage'
+import { hydrateProgress, useProgress } from '@/lib/progress'
 
 
 export const Route = createFileRoute('/hub')({
@@ -16,15 +16,11 @@ export const Route = createFileRoute('/hub')({
 })
 
 function Hub() {
-  const [done, setDone] = useState<Record<string, boolean>>({})
+  const done = useProgress((s) => s.done)
   const [q, setQ] = useState('')
 
   useEffect(() => {
-    setDone(loadAllDone())
-
-    const handleStorage = () => setDone(loadAllDone())
-    window.addEventListener('storage', handleStorage)
-    return () => window.removeEventListener('storage', handleStorage)
+    hydrateProgress()
   }, [])
 
   const query = q.trim().toLowerCase()

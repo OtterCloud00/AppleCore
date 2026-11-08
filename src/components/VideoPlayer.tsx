@@ -1,5 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { getPos, setPos } from '@/lib/storage'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Throttler } from '@tanstack/pacer'
+import {
+  setPos,
+  clearPos,
+  hydrateProgress,
+  progressStore,
+} from '@/lib/progress'
 
 export default function VideoPlayer({
   lessonId,
@@ -9,18 +15,26 @@ export default function VideoPlayer({
   src: string
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const lastSaved = useRef(0)
   const [resumeAt, setResumeAt] = useState<number | null>(null)
 
-  useEffect(() => {
-    const saved = getPos(lessonId)
-    if (saved > 5) setResumeAt(saved)
-  }, [lessonId])
+  // throttled position save: at most every 5s while the video plays
+  const throttledSave = useMemo(
+    () =>
+      new Throttler(
+        (t: number) => {
+          setPos(lessonId, t)
+        },
+        { wait: 5000 },
+      ),
+    [lessonId],
+  )
 
-  const save = (t: number) => {
-    setPos(lessonId, t)
-    lastSaved.current = t
-  }
+  useEffect(() => {
+    hydrateProgress()
+    const saved = progressStore.get().pos[lessonId]
+    if (saved > 5) setResumeAt(saved)
+    return () => throttledSave.cancel()
+  }, [lessonId, throttledSave])
 
   function onLoadedMetadata() {
     const v = videoRef.current
@@ -37,7 +51,7 @@ export default function VideoPlayer({
   function onTimeUpdate() {
     const v = videoRef.current
     if (!v) return
-    if (v.currentTime - lastSaved.current >= 5) save(v.currentTime)
+    throttledSave.maybeExecute(v.currentTime)
   }
 
   return (
@@ -52,7 +66,10 @@ export default function VideoPlayer({
           preload="metadata"
           onLoadedMetadata={onLoadedMetadata}
           onTimeUpdate={onTimeUpdate}
-          onEnded={() => save(0)}
+          onEnded={() => {
+            throttledSave.cancel()
+            clearPos(lessonId)
+          }}
         />
       ) : (
         <p className="bg-panel border border-dashed border-hairline rounded-xl p-6 text-muted">
@@ -82,7 +99,8 @@ export default function VideoPlayer({
           onClick={() => {
             const v = videoRef.current
             if (v) v.currentTime = 0
-            save(0)
+            throttledSave.cancel()
+            clearPos(lessonId)
             setResumeAt(null)
           }}
         >
