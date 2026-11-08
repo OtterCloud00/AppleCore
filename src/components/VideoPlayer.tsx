@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { lsGet, lsSet } from '@/lib/storage'
+import { getPos, setPos } from '@/lib/storage'
 
 export default function VideoPlayer({
   lessonId,
@@ -13,12 +13,12 @@ export default function VideoPlayer({
   const [resumeAt, setResumeAt] = useState<number | null>(null)
 
   useEffect(() => {
-    const saved = lsGet<number>(`pos:${lessonId}`, 0)
+    const saved = getPos(lessonId)
     if (saved > 5) setResumeAt(saved)
   }, [lessonId])
 
   const save = (t: number) => {
-    lsSet(`pos:${lessonId}`, t)
+    setPos(lessonId, t)
     lastSaved.current = t
   }
 
