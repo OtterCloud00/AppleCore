@@ -70,9 +70,6 @@ function App() {
                   {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'} •{' '}
                   {course.modules.length} {course.modules.length === 1 ? 'module' : 'modules'}
                 </p>
-                <p className="mt-2 text-xs text-accent font-semibold">
-                  Login richiesto
-                </p>
               </article>
             )
           })
