@@ -167,7 +167,7 @@ mai Next+OpenNext"). **Ora è incondizionale**: si droppa Next e si migra a
   `C:\Users\Stefy\Documents\Dev\applecore-start`), MAI dentro il repo
   dell'app: copiare/spostare codice in un albero pulito dall'esterno
   (→ istruzioni in `TANSTACK-PLAN.md` §Migrazione step 0/2)
-- **Rotte file-based attive**: `/` (landing pubblica), `/better-auth` (auth pubblica), `/courses` (catalogo pubblico); `/c/$courseId`, `/hub`, `/c/$courseId/l/$lessonId` e `/media/**` richiedono login (redirect a `/?to=` se non autenticato).
+- **Rotte file-based attive**: `/` (landing pubblica, vetrina con card statiche, login richiesto per entrare), `/better-auth` (auth pubblica), `/courses` (catalogo pubblico, link ai corsi portano al login se non autenticato); `/hub`, `/c/$courseId`, `/c/$courseId/l/$lessonId` e `/media/**` richiedono login (redirect a `/?to=` se non autenticato).
 
 - Cosa si ricicla: `catalog.json` e tutti gli script, player/resume/progressi
   (localStorage = client-side, identico), Tailwind 4, componenti UI
