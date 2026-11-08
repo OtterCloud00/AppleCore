@@ -1,6 +1,5 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
-import { getSessionFn } from '@/server/auth'
 import { courses, flattenAll, flattenLessons } from '@/lib/catalog'
 import { loadAllDone } from '@/lib/storage'
 import Progress from '@/components/Progress'
@@ -13,11 +12,6 @@ const EN_SUBTITLES: Record<string, string> = {
 }
 
 export const Route = createFileRoute('/courses')({
-  beforeLoad: async ({ location }) => {
-    const session = await getSessionFn()
-    if (!session.authed)
-      throw redirect({ to: '/', search: { to: location.pathname } })
-  },
   component: Courses,
 })
 
