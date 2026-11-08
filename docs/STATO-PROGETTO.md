@@ -1,26 +1,41 @@
 # STATO PROGETTO — Applecore
 
 > Documento di handoff: da leggere a inizio sessione (umano o agente).
-> Ultimo aggiornamento: 1 novembre 2026.
+> Ultimo aggiornamento: 8 novembre 2026.
+
+> **Aggiornamento 5 nov 2026 — migrazione eseguita.**
+> L'app gira su **TanStack Start 1.0 React** (Vite 8) con route file-based in
+> `src/routes/`, auth Better Auth (`src/lib/auth.ts`, `src/server/auth.ts`) e
+> route media autenticata (`src/routes/media/$.ts`). Il build usa Cloudflare
+> Workers (`@cloudflare/vite-plugin`); in dev Nitro su Node legge i media da
+> `APPLECORE_MEDIA_DIR` (default `media`). Le sezioni sotto che citano
+> Next.js/`proxy.ts`/submodule sono storiche, salvo i punti su catalogo e
+> media; vedi anche `TANSTACK-PLAN.md`.
+
+> **Aggiornamento 8 nov 2026 — to-do README eseguiti.**
+> - `src/routes/index copy.tsx` splittato in `hub.tsx` (Hub) e `auth.tsx` (LoginForm + BetterAuth); `index copy.tsx` eliminato.
+> - `TANSTACK-PLAN.md` archiviato come `TANSTACK-PLAN-1.md`; nuovo `TANSTACK-PLAN.md` scritto con percorsi di adozione rimanenti (Store, Pacer, Hotkeys, Virtual, Markdown+Highlight, Charts, Query, Devtools, Redact).
+> - `TANSTACK-PLAN-REPORT.md` creato con stato di completamento del piano TanStack (2/16 librerie adottate).
+> - Report architettura (`improve-codebase-architecture`) scritto in temp: 4 candidati di deepening, top recommendation = spostare LoginForm da auth.tsx nel modulo /.
+> - `impeccable` hook attivato per questo progetto (`.impeccable/config.json` + `config.local.json`).
+> - `src/routes/index.tsx`: testo placeholder sostituito con copy inglese ("Applecore" / "Your iOS & SwiftUI Courses" / "Watch lessons, track progress, and take notes straight from the browser."); lista corsi hard-coded sostituita con rendering dinamico da `src/lib/catalog` (Candidato 3 del report architettura — landing pubblica ora mostra i corsi reali dal catalogo).
 
 > ⚠️ Cambio nome (1 nov 2026): l'app si chiama **Applecore** (ex SwiftVault).
 > Repo aggiornati: codice → `github.com/OtterCloud00/AppleCore` (public),
 > media → **`orchard`** (es-SwiftVault, ex-stvt-media) su GitHub
 > (`github.com/OtterCloud00/orchard`, private) e in locale in
-> `C:\Users\Stefy\Documents\Dev\orchard`. Il backup pre-filtro rimane
-> `swiftvault-backup-prefilter.git` (nome storico, da eliminare quando tutto
-> è verificato). Le chiavi localStorage restano `hub:*`.
+> `C:\Users\Stefy\Documents\Dev\orchard`. Le chiavi localStorage restano `hub:*`.
 
 ## Missione essenziale
 
-App web attualmente su **Next.js 16** (base `create-next-app`: src/,
-Tailwind 4, TS, pnpm). **Decisa e NON ancora eseguita** la migrazione a
-**TanStack Start 1.0 React** (decisione 25/10/2026 + hosting **Cloudflare**
-Workers: dettagli in `TANSTACK-PLAN.md`, percorso 8 step; scaffold con la
-CLI TanStack in cartella vuota separata). Sostituisce la scuola Teachable
+App web su **TanStack Start 1.0 React** (Vite 8, Tailwind 4, TS, pnpm),
+migrata da Next.js il 5 novembre 2026 (decisione 25/10/2026 + hosting
+**Cloudflare** Workers: dettagli in `TANSTACK-PLAN.md`; scaffold generato con
+la CLI TanStack in cartella vuota separata). Sostituisce la scuola Teachable
 di Sean Allen (chiusa il **24 novembre 2026**). Video scaricati e dentro
-la repo privata `orchard` (submodule), app serverless su CF Workers con
-auth moderna. Zero costi, uso personale.
+la repo privata `orchard` (cartella esterna in dev, fetch autenticato in
+prod), app serverless su CF Workers con auth moderna. Zero costi, uso
+personale.
 
 ⚠️ **Licenza**: materiali per uso personale; vietato esporli pubblicamente
 (no mirror su server): per questo il hub richiede credenziali e la strategia
@@ -32,11 +47,16 @@ valutate e scartate: Content ID/strike e lock-in).
 
 - `src/data/catalog.json` → corsi/moduli/lezioni. **Sorgente di verità** (lo
   script la rigenera per corso con merge incrementale).
-- `src/proxy.ts` → Basic Auth (convenzione Next 16 per il vecchio middleware).
-  Credenziali: env `SITE_USER` / `SITE_PASS`. In dev (senza env) resta aperto;
-  in produzione senza env → **500** per non esporre niente.
-- `public/media/<corso>/<modulo>/NN - nome file.mp4` → i video.
-  `public/media/<corso>/<modulo>/_risorse/` → zip/swift/avatar di progetto,
+- `src/lib/auth.ts` + `src/server/auth.ts` → Better Auth single-user
+  (memory adapter, utente da `SITE_USER`/`SITE_PASS`, sessioni 30 giorni).
+  Il sign-up via HTTP è bloccato; le lezioni `/c/**` e `/media/**` richiedono
+  login (fallback Basic per client esterni). In dev senza env resta aperto;
+  in produzione senza env non espone niente.
+- `src/routes/media/$.ts` + `src/server/media.ts` → media autenticati.
+  In dev leggono `APPLECORE_MEDIA_DIR` (default `media`, fuori da `public/`);
+  in produzione arrivano da GitHub `orchard` con `GH_TOKEN`.
+- `orchard/<corso>/<modulo>/NN - nome file.mp4` → i video.
+  `orchard/<corso>/<modulo>/_risorse/` → zip/swift/avatar di progetto,
   NON lezioni: lo script li salta; si agganciano alle lezioni con `links`.
 - `scripts/build-catalog.mjs` → generatore catalogo (merge per modulo).
 - `scripts/apply-links.mjs` → creato volatile per mappare gli allegati: nasce e
@@ -86,7 +106,7 @@ valutate e scartate: Content ID/strike e lock-in).
     `C:\Users\Stefy\Documents\Dev\swiftvault-backup-prefilter.git`
     → eliminare quando tutto è verificato
   - **Submodule** su `public/media` → url **GitHub** (`https://github.com/
-    OtterCloud00/orchard.git`, `branch = main`, agg. 1 nov 2026 — prima era
+OtterCloud00/orchard.git`, `branch = main`, agg. 1 nov 2026 — prima era
     un path locale). Il repo public contiene solo il puntatore, non i media:
     chi clona senza accesso a orchard vede la cartella vuota
   - ⚠️ ref `refs/t3/orchestration-v2/checkpoints/*` (8) puntano al vecchio
@@ -101,6 +121,7 @@ revocato: i file H.264 sotto il limite restano originali).
 ## Blocco GitHub risolto (che vie erano)
 
 Due strade valutate a suo tempo:
+
 - **A. R2**: scartata (decisione utente).
 - **B. AV1 re-encode**: scelta in versione ridotta "solo i file >100 MiB"
   (decisione rivista la sera stessa: prima si disse "tutta la libreria",
@@ -126,7 +147,7 @@ l'URL pubblica `pub-XXXX.r2.dev`:
    (route interna invece del blob storage: il catalogo non cambia semantica,
    cambia solo chi risponde)
 
-## Framework: TanStack Start (decisione 25/10/2026 — drop di Next; migrazione DA FARE)
+## Framework: TanStack Start (decisione 25/10/2026 — migrazione FATTA 5 nov 2026)
 
 Prima la regola era condizionale ("se hosting Cloudflare → TanStack Start,
 mai Next+OpenNext"). **Ora è incondizionale**: si droppa Next e si migra a
@@ -140,12 +161,13 @@ mai Next+OpenNext"). **Ora è incondizionale**: si droppa Next e si migra a
   = spostamento mezza giornata)
 - Da 1.0 STABILE (13/10/2026) con docs anche per **Solid** (eventuale port
   futuro UI-only, non richiesto ora)
-- **Piano di migrazione in 8 step: `TANSTACK-PLAN.md`** (mezza giornata)
+- **Piano di migrazione in 8 step: `TANSTACK-PLAN.md`** (mezza giornata); versione storica archiviata come `TANSTACK-PLAN-1.md`. Stato completamento: vedi `TANSTACK-PLAN-REPORT.md`.
 - ⚠️ **Regola procedurale (1 nov 2026)**: lo scaffold venga generato con la
   CLI TanStack **in una cartella vuota separata** (es.
   `C:\Users\Stefy\Documents\Dev\applecore-start`), MAI dentro il repo
   dell'app: copiare/spostare codice in un albero pulito dall'esterno
   (→ istruzioni in `TANSTACK-PLAN.md` §Migrazione step 0/2)
+- **Rotte file-based attive**: `/` (landing pubblica, vetrina con card statiche, login richiesto per entrare), `/better-auth` (auth pubblica), `/courses` (catalogo pubblico, link ai corsi portano al login se non autenticato); `/hub`, `/c/$courseId`, `/c/$courseId/l/$lessonId` e `/media/**` richiedono login (redirect a `/?to=` se non autenticato).
 
 - Cosa si ricicla: `catalog.json` e tutti gli script, player/resume/progressi
   (localStorage = client-side, identico), Tailwind 4, componenti UI
@@ -160,26 +182,21 @@ mai Next+OpenNext"). **Ora è incondizionale**: si droppa Next e si migra a
 
 ## Deploy su Cloudflare (decisione 1 nov 2026 — dopo la migrazione)
 
-1. ~~Ripulire la history media~~ **FATTO** (filter-repo eseguito: zero path
-   media nel repo codice) e repo codice = **PUBLIC**:
-   `github.com/OtterCloud00/AppleCore` (repo rinominato in giu il 1 nov;
-   remote locale già aggiornato; mergiare la LICENSE iniziale alla prima
-   push con `git merge --allow-unrelated-histories origin/main` se
-   convivessero le due history)
-2. **Repo media = `orchard`** (private `OtterCloud00/orchard`,
-   root = corsi; cartella locale `C:\Users\Stefy\Documents\Dev\orchard`;
-   submodule montato su `public/media`, url GitHub, pin `c1349ae`)
-3. **Hosting = Cloudflare Workers** (1 worker):
-   - deploy con Nitro preset `cloudflare` + `wrangler deploy`
-   - **R2 binding** per i media (bucket es. `orchard`, binding es. `MEDIA`)
-     serviti da route interna autenticata dal cookie ⇒ 1 dominio, un solo
-     login, niente URL firmate/secondo progetto (tomba le varianti "1 app +
-     GH_TOKEN" / "2 progetti + HMAC" del piano Vercel)
-   - env/secrets sul Worker: `SITE_USER`, `SITE_PASS`, `SESSION_SECRET`
+1. **Repo media = `orchard`** (private `OtterCloud00/orchard`,
+   root = corsi; cartella locale `C:\Users\Stefy\Documents\Dev\orchard`).
+   In dev i media si leggono da lì via `APPLECORE_MEDIA_DIR` (nessuna copia
+   dentro `public/`); il vecchio submodule non serve più all'app.
+2. **Hosting = Cloudflare Workers** (1 worker):
+   - build con `@cloudflare/vite-plugin`, deploy con `wrangler deploy`
+   - i media in produzione arrivano da GitHub `orchard` con `GH_TOKEN`
+     (niente R2): la route `/media/**` fa da proxy autenticato, così il
+     token resta solo sul server
+   - env/secrets sul Worker: `SITE_USER`, `SITE_PASS`,
+     `BETTER_AUTH_SECRET` (o `SESSION_SECRET`), `GH_TOKEN`
      (`npx wrangler secret put …`) — niente dev-consente-aperto in prod
-   (⚠️ `.env.local` attuale usa le demo `stefy/test`: CAMBIARE prima del deploy)
-4. Test post-deploy: `/` → login moderno; con login → 200; media via R2
-   solo da app autenticata (cookie); 401/redirect senza login
+     (⚠️ `.env.local` attuale usa le demo `stefy/test`: CAMBIARE prima del deploy)
+3. Test post-deploy: `/` → login moderno; con login → 200; media solo da app
+   autenticata (cookie); 401/redirect senza login
 
 ## Decisione media: AV1 **solo necessari** (25 ott 2026, rivista sera)
 
@@ -202,39 +219,31 @@ CPU i3-2100: ~75 fps (2,5x realtime) → un file grande ~7-8 min.
 
 ## Cosa fare il prossimo giro
 
-- [x] Scarica da Teachable: iOS Dev Launchpad ✓ + SwiftUI Fundamentals ✓
-      (script `launchpad-dl.mjs` / `swiftui-dl.mjs`, retry automatico oath URL
-      scadute: risolvi i falliti in-page e rilancia — i già scaricati skip)
-- [x] AV1 fase 1 WidgetKit (commit `e2b9629`)
-- [ ] Fine `av1-necessari` (12 file) → swap → verifica ZERO >100 MiB
-- [ ] Commit media: launchpad (61 H.264 + 6 AV1) e swiftui (60 H.264 + 8 AV1)
-      SEPARATI (tematici), poi `src/data/catalog.json` + docs contatori
-- [x] Lez 2 senza media — deciso con Scan: Launchpad "Where to go…",
-      "Did you like SwiftUI?" restano escluse (upsell, nessun link utile);
-      SwiftUI "WWDC - What's New in SwiftUI" è ora lezione `link` nel
-      catalogo (video Apple iOS 15 + iOS 16 via apply-links-auto)
-- [x] Aggancio `links` per le _risorse dei 2 corsi nuovi — FATTO automatico
-      (commit `331adbc`, `scripts/apply-links-auto.mjs`: 46 download + 66
-      esterni su 136 lezioni, zero unmatched)
-- [ ] `pnpm run build` → OK → commit catalogo/docs
-- [ ] **Migrazione Next → TanStack Start React** (8 step in `TANSTACK-PLAN.md`:
-      scaffold con la CLI TanStack **in cartella vuota separata** (mai dentro
-      il repo dell'app), `src/routes/`, auth middleware, remove Next) →
-      build OK locale
-- [x] **Split repo FATTO**: media su `orchard` (private, es-swiftvault-media)
-      + sottomodulo su `public/media` ripristinato e collegato a GitHub
-      (pin `c1349ae`) +
-      `git filter-repo` eseguito + repo codice rinominato su GitHub:
-      **github.com/OtterCloud00/AppleCore** (public; la LICENSE iniziale va
-      preservata via `git merge --allow-unrelated-histories origin/main`
-      alla prima push, se l'utente la tiene)
 - [ ] Ultimi pass di commit media launchpad/swiftui (elenco su) → push `orchard`
 - [ ] Push GitHub repo codice su OtterCloud00/AppleCore + deploy
-      **Cloudflare Workers** (Nitro preset `cloudflare`, bucket R2 `orchard`
-      con binding, secrets `SITE_USER`/`SITE_PASS`/`SESSION_SECRET`)
+      **Cloudflare Workers** (`@cloudflare/vite-plugin`, secrets
+      `SITE_USER`/`SITE_PASS`/`BETTER_AUTH_SECRET`/`GH_TOKEN`)
       (⚠️ cambiare password demo `stefy/test` PRIMA del deploy)
 - [ ] Test post-deploy: `/` → login moderno; route → 200 col cookie;
       media solo dopo autenticazione
+- [ ] TanStack Start: completare percorsi di adozione rimanenti
+      (Store, Pacer, Hotkeys, Virtual, Markdown+Highlight, Charts, Query,
+      Devtools panel, Redact) — vedi `TANSTACK-PLAN.md` §Percorso di adozione
+- [ ] Candidati architettura (report in temp: `architecture-review-*.html` e `-v2.html`):
+      - #1 spostare LoginForm da auth.tsx in / — NON applicato (scelta utente: index = solo vetrina)
+      - #2 deep-wrap localStorage in storage module — ✅ applicato (storage.ts espone interfaccia di dominio getDone/setDone/getNote/setNote/getPos/setPos/loadAllDone; chiavi hub:* nascoste; aggiornati c/$courseId.tsx, c/$courseId/l/$lessonId.tsx, VideoPlayer.tsx)
+      - #3 catalogo dinamico in landing — ✅ applicato (index.tsx renderizza courses da @/lib/catalog)
+      - #4 hub.tsx come rotta /hub con auth guard — ✅ applicato (createFileRoute('/hub') con beforeLoad redirect a / se non autenticato)
+- Comandi Impeccable eseguiti:
+      - init — ✅ PRODUCT.md creato
+      - document — ✅ DESIGN.md + .impeccable/design.json creati
+      - extract — ✅ IslandShell.tsx + Button.tsx creati
+      - adapt — ✅ viewport-fit=cover, safe area footer, touch target 44px
+      - clarify — ✅ messaggi vuoti, stati di errore/successo, etichette
+      - distill — ✅ nessun elemento ridondante
+      - animate — ✅ feedback caricamento corso più evidente
+      - bolder — ✅ titolo hero text-5xl, CoreMark size 260
+      - polish — ✅ 0 anti-patterns su tutti i file pubblici
 
 ## Roadmap facoltativa
 

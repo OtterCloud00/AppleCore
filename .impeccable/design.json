@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T14:45:00Z",
+  "title": "Design System: Applecore",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Carta",
+        "canonical": "#eef0e6",
+        "tonalRamp": ["#fbfcf9", "#f7f9f3", "#f3f5ec", "#efe1e4", "#e9dcdb", "#e5d3d4", "#e1cacd", "#ddc1c6"]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Pannello",
+        "canonical": "#f8f9f2",
+        "tonalRamp": ["#fefefe", "#fafbf8", "#f8f9f4", "#f6f7f0", "#f4f5ec", "#f2f3e8", "#f0f1e4", "#eeefe0"]
+      },
+      "panel2": {
+        "role": "neutral",
+        "displayName": "Pannello 2",
+        "canonical": "#e3e7d8",
+        "tonalRamp": ["#f7f8f4", "#f5f6f0", "#f3f4ec", "#f1f2e8", "#eff0e4", "#edeee0", "#ebecd0", "#e9eacc"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Capello",
+        "canonical": "#cfd7c7",
+        "tonalRamp": ["#e7e9df", "#dfdfd7", "#d7d7cf", "#cfcfc7", "#c7c7bf", "#bfbfb7", "#b7b7af", "#afafa7"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Inchiostro",
+        "canonical": "#18271f",
+        "tonalRamp": ["#0a0d0f", "#121b1d", "#1a2527", "#222f31", "#2a393b", "#324345", "#3a4d4f", "#425759"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muto",
+        "canonical": "#5a6e60",
+        "tonalRamp": ["#7a8e80", "#98a69c", "#b6c4b8", "#d4e2d4", "#f2f2f0", "#fafaf8", "#fcfcfc", "#fefefe"]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Mela Buccia",
+        "canonical": "#c94a32",
+        "tonalRamp": ["#8a2d20", "#a33526", "#bc3e2c", "#d54734", "#e2583f", "#ef694c", "#fc7a5b", "#ff8b6c"]
+      },
+      "success": {
+        "role": "secondary",
+        "displayName": "Palm",
+        "canonical": "#4d8b3f",
+        "tonalRamp": ["#335d2b", "#3c6c32", "#457b39", "#4e8a40", "#579947", "#60a84e", "#69b755", "#72c65c"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines e titoli di pagina principale"
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Testo di paragrafo, descrizioni, contenuto principale"
+      },
+      "label": {
+        "displayName": "Label / Kicker",
+        "purpose": "Etichette, kicker, badge, sottotitoli piccoli"
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient-low",
+        "value": "0 1px 0 var(--inset-glint) inset, 0 22px 44px var(--shadow), 0 6px 18px var(--shadow-strong)",
+        "purpose": "Profondità sulle card principali (island-shell), luce radente dall'alto"
+      },
+      {
+        "name": "element",
+        "value": "0 18px 34px var(--shadow), 0 4px 14px var(--shadow-strong)",
+        "purpose": "Ombra sottile per card secondarie (feature-card, demo-card)"
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px color-mix(in oklab, var(--accent) 24%, transparent)",
+        "purpose": "Anello di focus su input ed elementi interattivi"
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease",
+        "purpose": "Transizione di default per stati e interazioni"
+      },
+      {
+        "name": "rise-in",
+        "value": "animation: rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
+        "purpose": "Entrata orchestrata degli elementi nella pagina"
+      },
+      {
+        "name": "coremark-seed",
+        "value": "animation: coremark-seed-in 0.7s both; animation-delay: 120ms + (index * 110ms)",
+        "purpose": "Rivelio orchestrato dei semi del CoreMark (una sola volta all'ingresso)"
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Bottone primario per azioni principali (salva, invia, continua).",
+      "html": "<button class=\"ds-btn-primary\">Salva modifiche</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid #c94a32; border-radius: 8px; background: #c94a32; color: #fff; padding: 0.72rem 1rem; font-size: 0.9rem; font-weight: 700; line-height: 1; cursor: pointer; transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease; } .ds-btn-primary:hover { transform: translateY(-1px); background: color-mix(in oklab, #c94a32 90%, #18271f); } .ds-btn-primary:focus-visible { outline: 2px solid #c94a32; outline-offset: 2px; border-radius: 4px; box-shadow: 0 0 0 3px color-mix(in oklab, #c94a32 24%, transparent); } .ds-btn-primary:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Bottone secondario per azioni di supporto (annulla, indietro, impostazioni).",
+      "html": "<button class=\"ds-btn-secondary\">Annulla</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid #cfd7c7; border-radius: 8px; background: color-mix(in oklab, #e3e7d8 74%, transparent); color: #18271f; padding: 0.72rem 1rem; font-size: 0.9rem; font-weight: 700; line-height: 1; cursor: pointer; transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease; } .ds-btn-secondary:hover { transform: translateY(-1px); } .ds-btn-secondary:focus-visible { outline: 2px solid #c94a32; outline-offset: 2px; border-radius: 4px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Card contenitore per corsi, lezioni e sezioni di contenuto.",
+      "html": "<article class=\"ds-card\"><h2>Titolo card</h2><p>Contenuto della card.</p></article>",
+      "css": ".ds-card { border: 1px solid #cfd7c7; background: linear-gradient(165deg, color-mix(in oklab, color-mix(in oklab, #f8f9f2 92%, transparent) 88%, #e3e7d8), color-mix(in oklab, color-mix(in oklab, #f8f9f2 92%, transparent) 78%, #f8f9f2)); border-radius: 14px; padding: 1rem; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 22px 44px rgba(22, 44, 30, 0.1), 0 6px 18px rgba(22, 44, 30, 0.16); backdrop-filter: blur(4px); }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo di input per form (email, password, testo libero).",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Inserisci testo...\">",
+      "css": ".ds-input { width: 100%; border: 1px solid #cfd7c7; border-radius: 0.75rem; background: color-mix(in oklab, color-mix(in oklab, var(--surface-strong) 88%, var(--panel2)) 100%, var(--panel2)); color: #18271f; outline: none; padding: 0.7rem 0.9rem; transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease; } .ds-input:focus { border-color: color-mix(in oklab, #c94a32 58%, #cfd7c7); box-shadow: 0 0 0 3px color-mix(in oklab, #c94a32 24%, transparent); }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Etichetta piccola per tipo lezione o stato.",
+      "html": "<span class=\"ds-chip\">video</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid #cfd7c7; border-radius: 999px; background: color-mix(in oklab, #e3e7d8 82%, transparent); color: #5a6e60; padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 700; }"
+    },
+    {
+      "name": "Progress Bar",
+      "kind": "custom",
+      "refersTo": "progress",
+      "description": "Barra di progresso per corsi e lezioni completate.",
+      "html": "<div class=\"ds-progress\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\"><div class=\"ds-progress-fill\"></div></div>",
+      "css": ".ds-progress { height: 0.375rem; border-radius: 9999px; background: #e3e7d8; border: 1px solid #cfd7c7; overflow: hidden; width: 100%; } .ds-progress-fill { height: 100%; background: #4d8b3f; border-radius: inherit; width: 60%; transition: width 300ms ease; }"
+    },
+    {
+      "name": "Alert",
+      "kind": "custom",
+      "refersTo": "alert",
+      "description": "Messaggio di errore o avviso nel flusso della pagina.",
+      "html": "<div class=\"ds-alert ds-alert-danger\" role=\"alert\"><p>Messaggio di errore.</p></div>",
+      "css": ".ds-alert { border: 1px solid rgba(193, 126, 42, 0.3); border-radius: 1rem; background: rgba(193, 126, 42, 0.1); color: #18271f; padding: 1rem; } .ds-alert-danger { border-color: rgba(196, 71, 71, 0.3); background: rgba(196, 71, 71, 0.1); } .ds-alert-danger p { color: #c94a32; font-size: 0.875rem; }"
+    },
+    {
+      "name": "CoreMark",
+      "kind": "custom",
+      "refersTo": "coremark",
+      "description": "Marchio grafico di Applecore: mela tagliata a metà con stella a cinque semi. Unico elemento decorativo dell'app.",
+      "html": "<svg class=\"ds-coremark\" width=\"28\" height=\"28\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\"><path d=\"M20 10.2 C 16.2 6.9 9.8 7.4 7.2 12.1 C 5 16.5 6.4 22 9.5 26.4 C 12.1 30 15.6 33.2 18.2 33.2 C 18.8 33.2 19.4 33 20 32.7 C 20.6 33 21.2 33.2 21.8 33.2 C 24.4 33.2 27.9 30 30.5 26.4 C 33.6 22 35 16.5 32.8 12.1 C 30.2 7.4 23.8 6.9 20 10.2 Z\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linejoin=\"round\"/><path d=\"M20 10.2 C 20.1 7.7 21.2 5.9 23.4 4.6\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\"/><g fill=\"currentColor\" style=\"color: var(--accent)\"><ellipse cx=\"20\" cy=\"18.9\" rx=\"1.7\" ry=\"3.1\" transform=\"rotate(-90 20 22.4)\"/><ellipse cx=\"20\" cy=\"18.9\" rx=\"1.7\" ry=\"3.1\" transform=\"rotate(-18 20 22.4)\"/><ellipse cx=\"20\" cy=\"18.9\" rx=\"1.7\" ry=\"3.1\" transform=\"rotate(54 20 22.4)\"/><ellipse cx=\"20\" cy=\"18.9\" rx=\"1.7\" ry=\"3.1\" transform=\"rotate(126 20 22.4)\"/><ellipse cx=\"20\" cy=\"18.9\" rx=\"1.7\" ry=\"3.1\" transform=\"rotate(198 20 22.4)\"/></g></svg>",
+      "css": ".ds-coremark { flex: none; } .ds-coremark.animate .ds-seed { animation: coremark-seed-in 0.7s both; } @keyframes coremark-seed-in { from { opacity: 0; } to { opacity: 1; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Il Laboratorio del Melaio",
+    "overview": "Crisp e moderno. Un sistema visivo ispirato al laboratorio di falegnameria: materiali onesti, bordi arrotondati ma precisi, ombre morbide che danno profondità senza appesantire. La palette è ispirata alla mela: buccia rossa come accento, polpa verde per i successi, carta e legno per le superfici. Ogni elemento ha uno scopo; nulla è decorativo se non il CoreMark, l'unico marchio grafico dell'app.",
+    "keyCharacteristics": [
+      "Colori derivati dal mondo della mela (buccia, polpa, carta, legno)",
+      "Ombre morbide per profondità, mai bordi netti aggressivi",
+      "Tipografia bicore: Fraunces per i titoli display, Instrument Sans per il corpo",
+      "Superfici con backdrop-filter blur e leggeri gradienti",
+      "Il CoreMark è l'unico elemento decorativo consentito"
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "Il colore di accento (Mela Buccia) è usato su ≤10% di qualsiasi schermo. La sua rarità è il punto: attira l'attenzione solo dove serve davvero.", "section": "colors" },
+      { "name": "The Soft-By-Default Rule", "body": "Le ombre sono sempre morbide (blur ≥ 4px), mai offset netti o zero-blur. La profondità si ottiene con sovrapposizione di più ombre, non con bordi duri.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do Usa l'accento (Mela Buccia #c94a32) con parsimonia: ≤10% di ogni schermo.",
+      "Do Mantieni le ombre morbide (blur ≥ 4px), mai bordi duri o zero-blur.",
+      "Do Usa la tipografia bicore: Fraunces per display, Instrument Sans per corpo e label.",
+      "Do Tieni i sottotitoli dei corsi in inglese sulle pagine pubbliche, italiano sulle pagine loggate.",
+      "Do Usa role=\"alert\" per i messaggi di errore e aria-valuenow/val sulle progress bar."
+    ],
+    "donts": [
+      "Don't Usare colori hard-coded fuori dai token del design system (es. #b8453a invece di var(--accent)).",
+      "Don't Aggiungere elementi decorativi oltre al CoreMark.",
+      "Don't Usare gradient text, glass decoration, o bordi colorati sinistro/destro sopra 1px sulle card.",
+      "Don't Sovraccaricare le pagine pubbliche con informazioni delle pagine loggate."
+    ]
+  }
+}

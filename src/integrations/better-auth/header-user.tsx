@@ -18,10 +18,10 @@ export default function BetterAuthHeader() {
           <img
             src={session.user.image}
             alt=""
-            className="h-8 w-8 rounded-full"
+            className="h-8 w-8 min-h-[44px] min-w-[44px] rounded-full"
           />
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--panel2)]">
+          <div className="flex h-8 w-8 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[var(--panel2)]">
             <span className="text-xs font-medium text-[var(--sea-ink-soft)]">
               {session.user.name?.charAt(0).toUpperCase() || 'U'}
             </span>
@@ -32,7 +32,7 @@ export default function BetterAuthHeader() {
             await authClient.signOut()
             await router.navigate({ to: '/' })
           }}
-          className="inline-flex h-9 items-center rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] transition hover:-translate-y-0.5"
+          className="inline-flex h-9 min-h-[44px] min-w-[44px] items-center rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] transition hover:-translate-y-0.5"
         >
           Sign out
         </button>
@@ -42,8 +42,8 @@ export default function BetterAuthHeader() {
 
   return (
     <Link
-      to="/"
-      className="inline-flex h-9 items-center rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] no-underline transition hover:-translate-y-0.5"
+      to="/auth"
+      className="inline-flex h-9 min-h-[44px] min-w-[44px] items-center rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] no-underline transition hover:-translate-y-0.5"
     >
       Sign in
     </Link>

@@ -1,245 +1,111 @@
-Welcome to your new TanStack Start app!
+# Applecore
 
-# Getting Started
+App web personale per corsi iOS e SwiftUI, costruita con **TanStack Start 1.0 React**, Vite 8, Tailwind 4, TypeScript e pnpm. Deploy su Cloudflare Workers. Zero costi, uso personale, media in repo privato (`orchard`).
 
-To run this application:
+## Struttura
+
+```
+Applecore/
+├── src/
+│   ├── routes/          # Route file-based TanStack Router
+│   │   ├── index.tsx            # /          Landing pubblica (vetrina, inglese)
+│   │   ├── auth.tsx             # /better-auth Login/BetterAuth (inglese)
+│   │   ├── courses.tsx          # /courses   Catalogo corsi (inglese)
+│   │   ├── hub.tsx              # /hub       Dashboard autenticata (italiano)
+│   │   ├── c/$courseId.tsx      # /c/:id     Pagina corso (italiano, login)
+│   │   ├── c/$courseId/l/$lessonId.tsx  # Lezione (italiano, login)
+│   │   ├── media/$              # /media/*   Media autenticati
+│   │   └── api/auth/$           # API auth
+│   ├── components/              # Componenti UI condivisi
+│   │   ├── IslandShell.tsx
+│   │   ├── Button.tsx
+│   │   ├── CoreMark.tsx         # Marchio Applecore
+│   │   ├── Progress.tsx
+│   │   ├── ThemeToggle.tsx
+│   │   ├── Header.tsx
+│   │   └── Footer.tsx
+│   ├── lib/                     # Logica condivisa
+│   │   ├── catalog.ts           # Lettura catalogo corsi
+│   │   ├── storage.ts           # Interfaccia dominio localStorage
+│   │   ├── auth.ts              # Better Auth configurazione
+│   │   └── auth-client.ts
+│   ├── server/                  # Route server (auth, media)
+│   │   ├── auth.ts
+│   │   └── media.ts
+│   ├── data/                    # Dati catalogo
+│   │   └── catalog.json
+│   ├── styles.css               # Token CSS e tema
+│   └── __root.tsx               # Route radice
+├── docs/
+│   ├── TANSTACK-PLAN.md         # Piano adozione TanStack (attivo)
+│   ├── TANSTACK-PLAN-1.md       # Piano storico (archiviato)
+│   ├── TANSTACK-PLAN-REPORT.md  # Stato completamento piano
+│   ├── GUIDA-OPERATIVA.md       # Come aggiungere moduli/corsi
+│   └── STATO-PROGETTO.md        # Stato progetto e handoff
+├── PRODUCT.md                   # Contesto prodotto (Impeccable)
+├── DESIGN.md                    # Sistema visuale (Impeccable)
+└── .impeccable/                 # Config design system (Impeccable)
+```
+
+## Regole lingua
+
+| Area | Pagine | Lingua |
+|------|--------|--------|
+| Pubbliche | `/`, `/better-auth`, `/courses` | Inglese |
+| Loggate | `/c/$courseId`, `/hub`, `/c/$courseId/l/$lessonId` | Italiano |
+
+## Navigazione
+
+- `/` — Landing pubblica con catalogo corsi. Le card sono **statiche (vetrina)**, per entrare nei corsi serve il login.
+- `/better-auth` — Login / sign-up Better Auth (inglese).
+- `/courses` — Catalogo corsi pubblico. Cliccando un corso senza login si va a `/auth` con ritorno al corso dopo l'accesso.
+- `/c/$courseId` — ❌ Login richiesto. Pagina corso con progressi e lezioni.
+- `/c/$courseId/l/$lessonId` — ❌ Login richiesto. Pagina lezione con player video e note.
+- `/hub` — ❌ Login richiesto. Dashboard progressi e ricerca lezioni.
+- `/media/*` — ❌ Login richiesto. Media protetti.
+
+## Avvio in sviluppo
 
 ```bash
+# Installa dipendenze
 pnpm install
+
+# Avvia server di sviluppo (porta 3000)
 pnpm dev
-```
 
-# Building For Production
-
-To build this application for production:
-
-```bash
+# Build di produzione
 pnpm build
+
+# Anteprima build
+pnpm preview
+
+# Deploy su Cloudflare Workers
+pnpm deploy
 ```
 
-## Styling
+## Variabili ambiente (`.env.local`)
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
-pnpm lint
-pnpm format
-pnpm check
+```env
+BETTER_AUTH_URL=http://localhost:3000
+SITE_USER=tuo_utente
+SITE_PASS=tua_password
+SESSION_SECRET=una_segreta_lunga_e_casuale
 ```
 
+## Comandi disponibili
 
-## Deploy to Cloudflare Workers
+- `pnpm dev` — avvia dev server
+- `pnpm build` — build produzione
+- `pnpm preview` — anteprima build locale
+- `pnpm lint` — esegue ESLint
+- `pnpm format` — Prettier + ESLint fix
+- `pnpm check` — verifica formattazione Prettier
+- `pnpm deploy` — build + deploy Cloudflare Workers
 
-This project uses the Cloudflare Vite plugin (configured in `vite.config.ts`) and `wrangler.jsonc`:
+## Aggiungere un corso
 
-1. Install Wrangler: `npm install -g wrangler`
-2. Authenticate: `wrangler login`
-3. Deploy: `npx wrangler deploy`
+Vedi `docs/GUIDA-OPERATIVA.md` per la routine completa (scarico da Teachable, catalogo, risorse, commit).
 
-For production env vars, run `wrangler secret put MY_VAR` for each secret listed in `.env.example`. Public (non-secret) vars go in `wrangler.jsonc` under `vars`.
+## Licenza
 
-KV, D1, R2, and Durable Object bindings are configured in `wrangler.jsonc` — see https://developers.cloudflare.com/workers/wrangler/configuration/.
-
-
-## Setting up Better Auth
-
-1. Generate and set the `BETTER_AUTH_SECRET` environment variable in your `.env.local`:
-
-   ```bash
-   pnpm dlx @better-auth/cli secret
-   ```
-
-2. Visit the [Better Auth documentation](https://www.better-auth.com) to unlock the full potential of authentication in your app.
-
-### Adding a Database (Optional)
-
-Better Auth can work in stateless mode, but to persist user data, add a database:
-
-```typescript
-// src/lib/auth.ts
-import { betterAuth } from "better-auth";
-import { Pool } from "pg";
-
-export const auth = betterAuth({
-  database: new Pool({
-    connectionString: process.env.DATABASE_URL,
-  }),
-  // ... rest of config
-});
-```
-
-Then run migrations:
-
-```bash
-pnpm dlx @better-auth/cli migrate
-```
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+Materiali per uso personale. Vietato esporre pubblicamente (no mirror su server). Vedi `docs/STATO-PROGETTO.md` §Licenza.

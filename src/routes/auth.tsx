@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { authClient } from '#/lib/auth-client'
 
-export const Route = createFileRoute('/better-auth')({
+export const Route = createFileRoute('/auth')({
   component: BetterAuth,
 })
 
@@ -14,6 +14,7 @@ function BetterAuth() {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   if (isPending) {
     return (
@@ -95,6 +96,8 @@ function BetterAuth() {
         })
         if (result.error) {
           setError(result.error.message || 'Sign up failed')
+        } else {
+          setSuccess(true)
         }
       } else {
         const result = await authClient.signIn.email({
@@ -103,6 +106,8 @@ function BetterAuth() {
         })
         if (result.error) {
           setError(result.error.message || 'Sign in failed')
+        } else {
+          setSuccess(true)
         }
       }
     } catch (err) {
@@ -125,6 +130,12 @@ function BetterAuth() {
             : 'Enter your email below to login to your account'}
         </p>
 
+        {success && (
+          <div className="demo-alert demo-alert-success mb-4 p-3 rounded-lg border border-[var(--success)] bg-[color-mix(in oklab,var(--success) 0.1)] text-[var(--success)] text-sm">
+            ✓ Account creato con successo. Puoi ora accedere.
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="grid gap-4">
           {isSignUp && (
             <div className="grid gap-2">
@@ -141,7 +152,12 @@ function BetterAuth() {
                 onChange={(e) => setName(e.target.value)}
                 className="demo-input"
                 required
+                maxLength={100}
+                aria-describedby="name-hint"
               />
+              <p id="name-hint" className="text-xs text-[var(--sea-ink-soft)] mt-1">
+                Massimo 100 caratteri
+              </p>
             </div>
           )}
 
@@ -156,7 +172,12 @@ function BetterAuth() {
               onChange={(e) => setEmail(e.target.value)}
               className="demo-input"
               required
+              maxLength={254}
+              aria-describedby="email-hint"
             />
+            <p id="email-hint" className="text-xs text-[var(--sea-ink-soft)] mt-1">
+              Indirizzo email valido
+            </p>
           </div>
 
           <div className="grid gap-2">
@@ -174,12 +195,17 @@ function BetterAuth() {
               className="demo-input"
               required
               minLength={8}
+              maxLength={128}
+              aria-describedby="password-hint"
             />
+            <p id="password-hint" className="text-xs text-[var(--sea-ink-soft)] mt-1">
+              Almeno 8 caratteri, massimo 128
+            </p>
           </div>
 
           {error && (
-            <div className="demo-alert demo-alert-danger">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="demo-alert demo-alert-danger" role="alert">
+              <p className="text-sm text-[var(--accent)]">{error}</p>
             </div>
           )}
 
@@ -232,3 +258,5 @@ function BetterAuth() {
     </main>
   )
 }
+
+

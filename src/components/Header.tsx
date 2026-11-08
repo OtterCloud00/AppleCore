@@ -20,15 +20,15 @@ export default function Header() {
         <div className="order-3 flex w-full flex-wrap items-center gap-x-4 gap-y-1 pb-1 text-sm font-semibold sm:order-none sm:w-auto sm:flex-nowrap sm:pb-0">
           <Link
             to="/"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
+            className="nav-link min-h-[44px] items-center px-4 py-2"
+            activeProps={{ className: 'nav-link is-active min-h-[44px] items-center px-4 py-2' }}
           >
             Home
           </Link>
           <Link
             to="/courses"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
+            className="nav-link min-h-[44px] items-center px-4 py-2"
+            activeProps={{ className: 'nav-link is-active min-h-[44px] items-center px-4 py-2' }}
           >
             Courses
           </Link>
