@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
+import { authClient } from '#/lib/auth-client'
 import { courses, flattenAll, flattenLessons } from '@/lib/catalog'
 import { loadAllDone } from '@/lib/storage'
 import Progress from '@/components/Progress'
@@ -16,6 +17,8 @@ export const Route = createFileRoute('/courses')({
 })
 
 function Courses() {
+  const { data: session } = authClient.useSession()
+  const isAuthed = !!session?.user
   const [done, setDone] = useState<Record<string, boolean>>({})
   const total = useMemo(() => flattenAll().length, [])
   const doneCount = useMemo(
@@ -56,8 +59,9 @@ function Courses() {
         return (
           <Link
             key={c.id}
-            to="/hub/$courseId"
-            params={{ courseId: c.id }}
+            to={isAuthed ? "/hub/$courseId" : "/auth"}
+            params={isAuthed ? { courseId: c.id } : undefined}
+            search={isAuthed ? undefined : { to: `/hub/${c.id}` }}
             className="island-shell rise-in mb-8 block rounded-2xl p-5 transition-colors hover:bg-panel2"
           >
             <div className="flex items-center justify-between gap-4">
