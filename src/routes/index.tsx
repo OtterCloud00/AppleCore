@@ -1,5 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
 import CoreMark from '@/components/CoreMark'
 import { courses } from '@/lib/catalog'
 
@@ -13,12 +12,6 @@ const EN_SUBTITLES: Record<string, string> = {
 export const Route = createFileRoute('/')({ component: App })
 
 function App() {
-  const [navigating, setNavigating] = useState<string | null>(null)
-
-  const handleCourseClick = (courseId: string) => {
-    setNavigating(courseId)
-  }
-
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
       <section className="island-shell rise-in relative overflow-hidden rounded-[2rem] px-6 py-10 sm:px-10 sm:py-14">
@@ -59,39 +52,27 @@ function App() {
               (acc, m) => acc + m.lessons.length,
               0
             )
-            const isNavigating = navigating === course.id
             return (
               <article
                 key={course.id}
-                className={`island-shell feature-card rise-in rounded-2xl p-5 transition-all duration-200 ${
-                  isNavigating ? 'opacity-50 scale-95' : ''
-                }`}
+                className="island-shell feature-card rise-in rounded-2xl p-5 opacity-60 cursor-not-allowed"
                 style={{ animationDelay: `${index * 90 + 80}ms` }}
               >
-                <Link
-                  to="/hub/$courseId"
-                  params={{ courseId: course.id }}
-                  className="block no-underline"
-                  onClick={() => handleCourseClick(course.id)}
-                >
-                  <h2 className="mb-2 text-base font-semibold text-[var(--sea-ink)] truncate overflow-wrap-anywhere">
-                    {course.title}
-                  </h2>
-                  {EN_SUBTITLES[course.id] && (
-                    <p className="m-0 text-sm text-[var(--sea-ink-soft)]">
-                      {EN_SUBTITLES[course.id]}
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs text-muted">
-                    {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'} •{' '}
-                    {course.modules.length} {course.modules.length === 1 ? 'module' : 'modules'}
+                <h2 className="mb-2 text-base font-semibold text-[var(--sea-ink)] truncate overflow-wrap-anywhere">
+                  {course.title}
+                </h2>
+                {EN_SUBTITLES[course.id] && (
+                  <p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+                    {EN_SUBTITLES[course.id]}
                   </p>
-                  {isNavigating && (
-                    <p className="mt-2 text-xs text-accent animate-pulse font-semibold">
-                      Caricamento corso…
-                    </p>
-                  )}
-                </Link>
+                )}
+                <p className="mt-2 text-xs text-muted">
+                  {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'} •{' '}
+                  {course.modules.length} {course.modules.length === 1 ? 'module' : 'modules'}
+                </p>
+                <p className="mt-2 text-xs text-accent font-semibold">
+                  Login richiesto
+                </p>
               </article>
             )
           })
