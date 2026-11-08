@@ -10,19 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BetterAuthRouteImport } from './routes/better-auth'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as HubRouteImport } from './routes/hub'
 import { Route as CCourseIdRouteImport } from './routes/c/$courseId'
+import { Route as HubCourseIdRouteImport } from './routes/hub/$courseId'
+import { Route as MediaSplatRouteImport } from './routes/media/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as CCourseIdLLessonIdRouteImport } from './routes/c/$courseId/l/$lessonId'
+import { Route as HubCourseIdLLessonIdRouteImport } from './routes/hub/$courseId/l/$lessonId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BetterAuthRoute = BetterAuthRouteImport.update({
-  id: '/better-auth',
-  path: '/better-auth',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesRoute = CoursesRouteImport.update({
@@ -30,9 +35,24 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CCourseIdRoute = CCourseIdRouteImport.update({
   id: '/c/$courseId',
   path: '/c/$courseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubCourseIdRoute = HubCourseIdRouteImport.update({
+  id: '/$courseId',
+  path: '/$courseId',
+  getParentRoute: () => HubRoute,
+} as any)
+const MediaSplatRoute = MediaSplatRouteImport.update({
+  id: '/media/$',
+  path: '/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -40,48 +60,100 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CCourseIdLLessonIdRoute = CCourseIdLLessonIdRouteImport.update({
+  id: '/l/$lessonId',
+  path: '/l/$lessonId',
+  getParentRoute: () => CCourseIdRoute,
+} as any)
+const HubCourseIdLLessonIdRoute = HubCourseIdLLessonIdRouteImport.update({
+  id: '/l/$lessonId',
+  path: '/l/$lessonId',
+  getParentRoute: () => HubCourseIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/better-auth': typeof BetterAuthRoute
+  '/auth': typeof AuthRoute
   '/courses': typeof CoursesRoute
-  '/c/$courseId': typeof CCourseIdRoute
+  '/hub': typeof HubRouteWithChildren
+  '/c/$courseId': typeof CCourseIdRouteWithChildren
+  '/hub/$courseId': typeof HubCourseIdRouteWithChildren
+  '/media/$': typeof MediaSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/c/$courseId/l/$lessonId': typeof CCourseIdLLessonIdRoute
+  '/hub/$courseId/l/$lessonId': typeof HubCourseIdLLessonIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/better-auth': typeof BetterAuthRoute
+  '/auth': typeof AuthRoute
   '/courses': typeof CoursesRoute
-  '/c/$courseId': typeof CCourseIdRoute
+  '/hub': typeof HubRouteWithChildren
+  '/c/$courseId': typeof CCourseIdRouteWithChildren
+  '/hub/$courseId': typeof HubCourseIdRouteWithChildren
+  '/media/$': typeof MediaSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/c/$courseId/l/$lessonId': typeof CCourseIdLLessonIdRoute
+  '/hub/$courseId/l/$lessonId': typeof HubCourseIdLLessonIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/better-auth': typeof BetterAuthRoute
+  '/auth': typeof AuthRoute
   '/courses': typeof CoursesRoute
-  '/c/$courseId': typeof CCourseIdRoute
+  '/hub': typeof HubRouteWithChildren
+  '/c/$courseId': typeof CCourseIdRouteWithChildren
+  '/hub/$courseId': typeof HubCourseIdRouteWithChildren
+  '/media/$': typeof MediaSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/c/$courseId/l/$lessonId': typeof CCourseIdLLessonIdRoute
+  '/hub/$courseId/l/$lessonId': typeof HubCourseIdLLessonIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/better-auth' | '/courses' | '/c/$courseId' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/courses'
+    | '/hub'
+    | '/c/$courseId'
+    | '/hub/$courseId'
+    | '/media/$'
+    | '/api/auth/$'
+    | '/c/$courseId/l/$lessonId'
+    | '/hub/$courseId/l/$lessonId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/better-auth' | '/courses' | '/c/$courseId' | '/api/auth/$'
+  to:
+    | '/'
+    | '/auth'
+    | '/courses'
+    | '/hub'
+    | '/c/$courseId'
+    | '/hub/$courseId'
+    | '/media/$'
+    | '/api/auth/$'
+    | '/c/$courseId/l/$lessonId'
+    | '/hub/$courseId/l/$lessonId'
   id:
     | '__root__'
     | '/'
-    | '/better-auth'
+    | '/auth'
     | '/courses'
+    | '/hub'
     | '/c/$courseId'
+    | '/hub/$courseId'
+    | '/media/$'
     | '/api/auth/$'
+    | '/c/$courseId/l/$lessonId'
+    | '/hub/$courseId/l/$lessonId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BetterAuthRoute: typeof BetterAuthRoute
+  AuthRoute: typeof AuthRoute
   CoursesRoute: typeof CoursesRoute
-  CCourseIdRoute: typeof CCourseIdRoute
+  HubRoute: typeof HubRouteWithChildren
+  CCourseIdRoute: typeof CCourseIdRouteWithChildren
+  MediaSplatRoute: typeof MediaSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -94,11 +166,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/better-auth': {
-      id: '/better-auth'
-      path: '/better-auth'
-      fullPath: '/better-auth'
-      preLoaderRoute: typeof BetterAuthRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -108,11 +180,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/c/$courseId': {
       id: '/c/$courseId'
       path: '/c/$courseId'
       fullPath: '/c/$courseId'
       preLoaderRoute: typeof CCourseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub/$courseId': {
+      id: '/hub/$courseId'
+      path: '/$courseId'
+      fullPath: '/hub/$courseId'
+      preLoaderRoute: typeof HubCourseIdRouteImport
+      parentRoute: typeof HubRoute
+    }
+    '/media/$': {
+      id: '/media/$'
+      path: '/media/$'
+      fullPath: '/media/$'
+      preLoaderRoute: typeof MediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -122,14 +215,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/c/$courseId/l/$lessonId': {
+      id: '/c/$courseId/l/$lessonId'
+      path: '/l/$lessonId'
+      fullPath: '/c/$courseId/l/$lessonId'
+      preLoaderRoute: typeof CCourseIdLLessonIdRouteImport
+      parentRoute: typeof CCourseIdRoute
+    }
+    '/hub/$courseId/l/$lessonId': {
+      id: '/hub/$courseId/l/$lessonId'
+      path: '/l/$lessonId'
+      fullPath: '/hub/$courseId/l/$lessonId'
+      preLoaderRoute: typeof HubCourseIdLLessonIdRouteImport
+      parentRoute: typeof HubCourseIdRoute
+    }
   }
 }
 
+interface HubCourseIdRouteChildren {
+  HubCourseIdLLessonIdRoute: typeof HubCourseIdLLessonIdRoute
+}
+
+const HubCourseIdRouteChildren: HubCourseIdRouteChildren = {
+  HubCourseIdLLessonIdRoute: HubCourseIdLLessonIdRoute,
+}
+
+const HubCourseIdRouteWithChildren = HubCourseIdRoute._addFileChildren(
+  HubCourseIdRouteChildren,
+)
+
+interface HubRouteChildren {
+  HubCourseIdRoute: typeof HubCourseIdRouteWithChildren
+}
+
+const HubRouteChildren: HubRouteChildren = {
+  HubCourseIdRoute: HubCourseIdRouteWithChildren,
+}
+
+const HubRouteWithChildren = HubRoute._addFileChildren(HubRouteChildren)
+
+interface CCourseIdRouteChildren {
+  CCourseIdLLessonIdRoute: typeof CCourseIdLLessonIdRoute
+}
+
+const CCourseIdRouteChildren: CCourseIdRouteChildren = {
+  CCourseIdLLessonIdRoute: CCourseIdLLessonIdRoute,
+}
+
+const CCourseIdRouteWithChildren = CCourseIdRoute._addFileChildren(
+  CCourseIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BetterAuthRoute: BetterAuthRoute,
+  AuthRoute: AuthRoute,
   CoursesRoute: CoursesRoute,
-  CCourseIdRoute: CCourseIdRoute,
+  HubRoute: HubRouteWithChildren,
+  CCourseIdRoute: CCourseIdRouteWithChildren,
+  MediaSplatRoute: MediaSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
